@@ -138,6 +138,8 @@ for country in countries:
 		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
+		# finaldayg, finalexpg = totalExpected(func[0][0], poptg, data)
+		# when97g = calcWhen(func[0][0], poptg, 0.97 * finalexpg, data)
 
 		xlim = max(len(data)*times, when97+10)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
@@ -170,11 +172,13 @@ for country in countries:
 		style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
 		text = plt.annotate('97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
 		text.set_fontsize(10)
+		# text2 = plt.annotate('(Gaussian)\n97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97g)).strftime("%d %b %Y"), xy = ( when97g , 0 ), size='x-small', ha='center', xytext=( when97g , 3*func[whichFunc][0](when97, *popt)+4000), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
+		# text2.set_fontsize(10)
 		plt.ylabel("New Cases")
 		plt.xlabel("Date")
 		plt.legend()
 		plt.tight_layout()
-		# plt.savefig('graphs/'+country+'.pdf')
+		plt.savefig('graphs/'+country+'.pdf')
 		print(country)
 	except Exception as e:
 		print(str(e))
