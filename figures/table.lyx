@@ -330,7 +330,7 @@ Max Cases
 \uwave off
 \noun off
 \color none
-Day when max cases
+Date when max cases
 \end_layout
 
 \end_inset
@@ -352,7 +352,7 @@ Day when max cases
 \uwave off
 \noun off
 \color none
-MSE R
+MSE (W)
 \end_layout
 
 \end_inset
@@ -374,7 +374,7 @@ MSE R
 \uwave off
 \noun off
 \color none
-MSE G
+MSE (G)
 \end_layout
 
 \end_inset
@@ -396,7 +396,7 @@ MSE G
 \uwave off
 \noun off
 \color none
-R2 W
+R2 (W)
 \end_layout
 
 \end_inset
@@ -418,7 +418,7 @@ R2 W
 \uwave off
 \noun off
 \color none
-R2 G
+R2 (G)
 \end_layout
 
 \end_inset
@@ -440,7 +440,7 @@ R2 G
 \uwave off
 \noun off
 \color none
-MAPE W
+MAPE (W)
 \end_layout
 
 \end_inset
@@ -462,7 +462,7 @@ MAPE W
 \uwave off
 \noun off
 \color none
-MAPE G
+MAPE (G)
 \end_layout
 
 \end_inset
@@ -574,7 +574,7 @@ United States
 \uwave off
 \noun off
 \color none
-32,053
+48,529
 \end_layout
 
 \end_inset
@@ -596,7 +596,7 @@ United States
 \uwave off
 \noun off
 \color none
-12-Apr-20
+26-Apr-20
 \end_layout
 
 \end_inset
@@ -807,7 +807,7 @@ Russia
 \uwave off
 \noun off
 \color none
-6,305
+6,706
 \end_layout
 
 \end_inset
@@ -829,7 +829,7 @@ Russia
 \uwave off
 \noun off
 \color none
-27-Apr-20
+4-May-20
 \end_layout
 
 \end_inset
@@ -1040,7 +1040,7 @@ United Kingdom
 \uwave off
 \noun off
 \color none
-5,335
+8,719
 \end_layout
 
 \end_inset
@@ -1062,7 +1062,7 @@ United Kingdom
 \uwave off
 \noun off
 \color none
-14-Apr-20
+12-Apr-20
 \end_layout
 
 \end_inset
@@ -1273,7 +1273,7 @@ Turkey
 \uwave off
 \noun off
 \color none
-4,177
+5,138
 \end_layout
 
 \end_inset
@@ -1295,7 +1295,7 @@ Turkey
 \uwave off
 \noun off
 \color none
-11-Apr-20
+12-Apr-20
 \end_layout
 
 \end_inset
@@ -1506,7 +1506,7 @@ Italy
 \uwave off
 \noun off
 \color none
-5,348
+6,557
 \end_layout
 
 \end_inset
@@ -1528,7 +1528,7 @@ Italy
 \uwave off
 \noun off
 \color none
-26-Mar-20
+22-Mar-20
 \end_layout
 
 \end_inset
@@ -1739,7 +1739,7 @@ Belarus
 \uwave off
 \noun off
 \color none
-859
+1,595
 \end_layout
 
 \end_inset
@@ -1761,7 +1761,7 @@ Belarus
 \uwave off
 \noun off
 \color none
-27-Apr-20
+3-Jun-20
 \end_layout
 
 \end_inset
@@ -1972,7 +1972,7 @@ Spain
 \uwave off
 \noun off
 \color none
-7,633
+9,222
 \end_layout
 
 \end_inset
@@ -1994,7 +1994,7 @@ Spain
 \uwave off
 \noun off
 \color none
-30-Mar-20
+1-Apr-20
 \end_layout
 
 \end_inset
@@ -2205,7 +2205,7 @@ Germany
 \uwave off
 \noun off
 \color none
-5,353
+6,294
 \end_layout
 
 \end_inset
@@ -2227,7 +2227,7 @@ Germany
 \uwave off
 \noun off
 \color none
-30-Mar-20
+28-Mar-20
 \end_layout
 
 \end_inset
@@ -2438,7 +2438,7 @@ France
 \uwave off
 \noun off
 \color none
-4,263
+7,578
 \end_layout
 
 \end_inset
@@ -2460,7 +2460,7 @@ France
 \uwave off
 \noun off
 \color none
-31-Mar-20
+1-Apr-20
 \end_layout
 
 \end_inset
@@ -2671,7 +2671,7 @@ Canada
 \uwave off
 \noun off
 \color none
-1,623
+2,046
 \end_layout
 
 \end_inset
@@ -2693,7 +2693,7 @@ Canada
 \uwave off
 \noun off
 \color none
-20-Apr-20
+21-Apr-20
 \end_layout
 
 \end_inset
@@ -2904,7 +2904,7 @@ Iran
 \uwave off
 \noun off
 \color none
-2,299
+5,275
 \end_layout
 
 \end_inset
@@ -2926,7 +2926,7 @@ Iran
 \uwave off
 \noun off
 \color none
-30-Mar-20
+5-Apr-20
 \end_layout
 
 \end_inset
@@ -3124,7 +3124,7 @@ Bahrain
 \uwave off
 \noun off
 \color none
-121
+301
 \end_layout
 
 \end_inset
@@ -3146,7 +3146,7 @@ Bahrain
 \uwave off
 \noun off
 \color none
-27-Apr-20
+25-Apr-20
 \end_layout
 
 \end_inset
@@ -3357,7 +3357,7 @@ India
 \uwave off
 \noun off
 \color none
-1,645
+1,990
 \end_layout
 
 \end_inset
@@ -3379,7 +3379,7 @@ India
 \uwave off
 \noun off
 \color none
-27-Apr-20
+26-Apr-20
 \end_layout
 
 \end_inset
@@ -3590,7 +3590,7 @@ China
 \uwave off
 \noun off
 \color none
-3,474
+15,141
 \end_layout
 
 \end_inset
@@ -3612,7 +3612,7 @@ China
 \uwave off
 \noun off
 \color none
-04-Feb-20
+13-Feb-20
 \end_layout
 
 \end_inset
@@ -3810,7 +3810,7 @@ Belgium
 \uwave off
 \noun off
 \color none
-1,456
+2,454
 \end_layout
 
 \end_inset
@@ -3832,7 +3832,7 @@ Belgium
 \uwave off
 \noun off
 \color none
-07-Apr-20
+16-Apr-20
 \end_layout
 
 \end_inset
@@ -4030,7 +4030,7 @@ Netherlands
 \uwave off
 \noun off
 \color none
-1,112
+1,335
 \end_layout
 
 \end_inset
@@ -4052,7 +4052,7 @@ Netherlands
 \uwave off
 \noun off
 \color none
-05-Apr-20
+11-Apr-20
 \end_layout
 
 \end_inset
@@ -4263,7 +4263,7 @@ Sweden
 \uwave off
 \noun off
 \color none
-572
+812
 \end_layout
 
 \end_inset
@@ -4285,7 +4285,7 @@ Sweden
 \uwave off
 \noun off
 \color none
-21-Apr-20
+25-Apr-20
 \end_layout
 
 \end_inset
@@ -4496,7 +4496,7 @@ Poland
 \uwave off
 \noun off
 \color none
-369
+545
 \end_layout
 
 \end_inset
@@ -4518,7 +4518,7 @@ Poland
 \uwave off
 \noun off
 \color none
-13-Apr-20
+20-Apr-20
 \end_layout
 
 \end_inset
@@ -4729,7 +4729,7 @@ Portugal
 \uwave off
 \noun off
 \color none
-786
+1,516
 \end_layout
 
 \end_inset
@@ -4751,7 +4751,7 @@ Portugal
 \uwave off
 \noun off
 \color none
-03-Apr-20
+11-Apr-20
 \end_layout
 
 \end_inset
@@ -4962,7 +4962,7 @@ United Arab Emirates
 \uwave off
 \noun off
 \color none
-499
+536
 \end_layout
 
 \end_inset
@@ -5195,7 +5195,7 @@ Ireland
 \uwave off
 \noun off
 \color none
-706
+1,169
 \end_layout
 
 \end_inset
@@ -5217,7 +5217,7 @@ Ireland
 \uwave off
 \noun off
 \color none
-14-Apr-20
+10-Apr-20
 \end_layout
 
 \end_inset
@@ -5428,7 +5428,7 @@ Switzerland
 \uwave off
 \noun off
 \color none
-1,095
+1,390
 \end_layout
 
 \end_inset
@@ -5450,7 +5450,7 @@ Switzerland
 \uwave off
 \noun off
 \color none
-26-Mar-20
+28-Mar-20
 \end_layout
 
 \end_inset
@@ -5661,7 +5661,7 @@ Indonesia
 \uwave off
 \noun off
 \color none
-336
+436
 \end_layout
 
 \end_inset
@@ -5683,7 +5683,7 @@ Indonesia
 \uwave off
 \noun off
 \color none
-26-Apr-20
+25-Apr-20
 \end_layout
 
 \end_inset
@@ -5894,7 +5894,7 @@ Singapore
 \uwave off
 \noun off
 \color none
-965
+1,515
 \end_layout
 
 \end_inset
@@ -5916,7 +5916,7 @@ Singapore
 \uwave off
 \noun off
 \color none
-23-Apr-20
+26-Apr-20
 \end_layout
 
 \end_inset
@@ -6127,7 +6127,7 @@ Romania
 \uwave off
 \noun off
 \color none
-365
+523
 \end_layout
 
 \end_inset
@@ -6149,7 +6149,7 @@ Romania
 \uwave off
 \noun off
 \color none
-13-Apr-20
+12-Apr-20
 \end_layout
 
 \end_inset
@@ -6360,7 +6360,7 @@ Bangladesh
 \uwave off
 \noun off
 \color none
-441
+503
 \end_layout
 
 \end_inset
@@ -6382,7 +6382,7 @@ Bangladesh
 \uwave off
 \noun off
 \color none
-27-Apr-20
+25-Apr-20
 \end_layout
 
 \end_inset
@@ -6593,7 +6593,7 @@ Israel
 \uwave off
 \noun off
 \color none
-563
+1,176
 \end_layout
 
 \end_inset
@@ -6615,7 +6615,7 @@ Israel
 \uwave off
 \noun off
 \color none
-02-Apr-20
+4-Apr-20
 \end_layout
 
 \end_inset
@@ -6826,7 +6826,7 @@ Japan
 \uwave off
 \noun off
 \color none
-554
+1,401
 \end_layout
 
 \end_inset
@@ -6848,7 +6848,7 @@ Japan
 \uwave off
 \noun off
 \color none
-13-Apr-20
+12-Apr-20
 \end_layout
 
 \end_inset
@@ -7059,7 +7059,7 @@ Serbia
 \uwave off
 \noun off
 \color none
-315
+445
 \end_layout
 
 \end_inset
@@ -7081,7 +7081,7 @@ Serbia
 \uwave off
 \noun off
 \color none
-14-Apr-20
+17-Apr-20
 \end_layout
 
 \end_inset
@@ -7292,7 +7292,7 @@ Austria
 \uwave off
 \noun off
 \color none
-736
+1,141
 \end_layout
 
 \end_inset
@@ -7314,7 +7314,7 @@ Austria
 \uwave off
 \noun off
 \color none
-25-Mar-20
+27-Mar-20
 \end_layout
 
 \end_inset
@@ -7525,7 +7525,7 @@ Hungary
 \uwave off
 \noun off
 \color none
-84
+210
 \end_layout
 
 \end_inset
@@ -7547,7 +7547,7 @@ Hungary
 \uwave off
 \noun off
 \color none
-20-Apr-20
+10-Apr-20
 \end_layout
 
 \end_inset
@@ -7758,7 +7758,7 @@ Moldova
 \uwave off
 \noun off
 \color none
-126
+222
 \end_layout
 
 \end_inset
@@ -7780,7 +7780,7 @@ Moldova
 \uwave off
 \noun off
 \color none
-17-Apr-20
+15-Apr-20
 \end_layout
 
 \end_inset
@@ -7991,7 +7991,7 @@ Denmark
 \uwave off
 \noun off
 \color none
-263
+390
 \end_layout
 
 \end_inset
@@ -8013,7 +8013,7 @@ Denmark
 \uwave off
 \noun off
 \color none
-05-Apr-20
+8-Apr-20
 \end_layout
 
 \end_inset
@@ -8224,7 +8224,7 @@ Finland
 \uwave off
 \noun off
 \color none
-126
+267
 \end_layout
 
 \end_inset
@@ -8246,7 +8246,7 @@ Finland
 \uwave off
 \noun off
 \color none
-12-Apr-20
+5-Apr-20
 \end_layout
 
 \end_inset
@@ -8457,7 +8457,7 @@ South Korea
 \uwave off
 \noun off
 \color none
-633
+909
 \end_layout
 
 \end_inset
@@ -8690,7 +8690,7 @@ Ukraine
 \uwave off
 \noun off
 \color none
-432
+789
 \end_layout
 
 \end_inset
@@ -8712,7 +8712,7 @@ Ukraine
 \uwave off
 \noun off
 \color none
-19-Apr-20
+16-Apr-20
 \end_layout
 
 \end_inset
@@ -8923,7 +8923,7 @@ Czech Republic
 \uwave off
 \noun off
 \color none
-265
+408
 \end_layout
 
 \end_inset
@@ -8945,7 +8945,7 @@ Czech Republic
 \uwave off
 \noun off
 \color none
-30-Mar-20
+27-Mar-20
 \end_layout
 
 \end_inset
@@ -9156,7 +9156,7 @@ Algeria
 \uwave off
 \noun off
 \color none
-109
+185
 \end_layout
 
 \end_inset
@@ -9178,7 +9178,7 @@ Algeria
 \uwave off
 \noun off
 \color none
-17-Apr-20
+4-Apr-20
 \end_layout
 
 \end_inset
@@ -9389,7 +9389,7 @@ Malaysia
 \uwave off
 \noun off
 \color none
-177
+235
 \end_layout
 
 \end_inset
@@ -9411,7 +9411,7 @@ Malaysia
 \uwave off
 \noun off
 \color none
-28-Mar-20
+27-Mar-20
 \end_layout
 
 \end_inset
@@ -9622,7 +9622,7 @@ Norway
 \uwave off
 \noun off
 \color none
-242
+425
 \end_layout
 
 \end_inset
@@ -9644,7 +9644,7 @@ Norway
 \uwave off
 \noun off
 \color none
-25-Mar-20
+28-Mar-20
 \end_layout
 
 \end_inset
@@ -9855,7 +9855,7 @@ Australia
 \uwave off
 \noun off
 \color none
-398
+611
 \end_layout
 
 \end_inset
@@ -9877,7 +9877,7 @@ Australia
 \uwave off
 \noun off
 \color none
-25-Mar-20
+23-Mar-20
 \end_layout
 
 \end_inset
@@ -10088,7 +10088,7 @@ Dominican Republic
 \uwave off
 \noun off
 \color none
-210
+371
 \end_layout
 
 \end_inset
@@ -10110,7 +10110,7 @@ Dominican Republic
 \uwave off
 \noun off
 \color none
-17-Apr-20
+18-Apr-20
 \end_layout
 
 \end_inset
@@ -10321,7 +10321,7 @@ Luxembourg
 \uwave off
 \noun off
 \color none
-171
+234
 \end_layout
 
 \end_inset
@@ -10554,7 +10554,7 @@ Argentina
 \uwave off
 \noun off
 \color none
-128
+344
 \end_layout
 
 \end_inset
@@ -10576,7 +10576,7 @@ Argentina
 \uwave off
 \noun off
 \color none
-27-Apr-20
+26-Apr-20
 \end_layout
 
 \end_inset
@@ -10787,7 +10787,7 @@ Greece
 \uwave off
 \noun off
 \color none
-76
+156
 \end_layout
 
 \end_inset
@@ -10809,7 +10809,7 @@ Greece
 \uwave off
 \noun off
 \color none
-27-Mar-20
+22-Apr-20
 \end_layout
 
 \end_inset
@@ -11020,7 +11020,7 @@ Croatia
 \uwave off
 \noun off
 \color none
-74
+96
 \end_layout
 
 \end_inset
@@ -11042,7 +11042,7 @@ Croatia
 \uwave off
 \noun off
 \color none
-30-Mar-20
+2-Apr-20
 \end_layout
 
 \end_inset
@@ -11253,7 +11253,7 @@ Philippines
 \uwave off
 \noun off
 \color none
-249
+666
 \end_layout
 
 \end_inset
@@ -11275,7 +11275,7 @@ Philippines
 \uwave off
 \noun off
 \color none
-07-Apr-20
+31-Mar-20
 \end_layout
 
 \end_inset
@@ -11486,7 +11486,7 @@ Thailand
 \uwave off
 \noun off
 \color none
-126
+263
 \end_layout
 
 \end_inset
@@ -11508,7 +11508,7 @@ Thailand
 \uwave off
 \noun off
 \color none
-26-Mar-20
+31-Mar-20
 \end_layout
 
 \end_inset
@@ -11719,7 +11719,7 @@ Oman
 \uwave off
 \noun off
 \color none
-97
+242
 \end_layout
 
 \end_inset
@@ -11741,7 +11741,7 @@ Oman
 \uwave off
 \noun off
 \color none
-20-Apr-20
+21-Apr-20
 \end_layout
 
 \end_inset
@@ -11952,7 +11952,7 @@ World
 \uwave off
 \noun off
 \color none
-83,441
+101,728
 \end_layout
 
 \end_inset
@@ -11974,7 +11974,7 @@ World
 \uwave off
 \noun off
 \color none
-12-Apr-20
+26-Apr-20
 \end_layout
 
 \end_inset

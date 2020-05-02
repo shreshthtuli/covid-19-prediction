@@ -109,6 +109,17 @@ def iterativeCurveFit(func, x, y, start):
 		outliersweight = softmax(1 - outliersweight)
 	return popt, pcov
 
+def getMaxCases(y, data):
+	m = 0; dday = 0
+	for day,cases in enumerate(y):
+		if day < len(data):
+			if data[day] > m:
+				m = data[day]; dday = day
+		else:
+			if cases > m:
+				m = cases; dday = day
+	return m, dday
+
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
@@ -169,9 +180,8 @@ for country in countries:
 		mapeg = "{:e}".format(mean_absolute_percentage_error(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
 		r2 = "{:e}".format(r2_score(data[1:], y))
 		r2g = "{:e}".format(r2_score(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
-		y = [func[whichFunc][0](px, *popt) for px in x[1:]]
-		maxcases = "{:e}".format(max(y))
-		maxday = y.index(max(y))
+		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
+		maxcases, maxday = getMaxCases(y, data)
 		print(mape, mapeg)
 		finaldata.append([country, finalexp, start + timedelta(days=finalday), start + timedelta(days=when97), maxcases, start + timedelta(days=maxday), mse, mseg, r2, r2g, mape, mapeg])
 		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
