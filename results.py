@@ -86,7 +86,7 @@ def totalExpected(func, popt, data):
 		today = func(day, *popt) if day >= len(data) else data[day]
 		total += today
 		day += 1
-		if day > data.index(max(data)) and today <= 1: break
+		if day > len(data) and today <= 1: break
 	return day, total
 
 def calcWhen(func, popt, match, data):
