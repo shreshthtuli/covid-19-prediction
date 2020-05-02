@@ -37,8 +37,13 @@ def weib(x, k, a, b, g):
 def beta(x, k, a, b, p, q):
 	return k * gamma(p + q) * ((x - a)** (p-1)) * (b-x)**(q-1) / (gamma(p) * gamma(q) * (b-a)**(p+q-1))
 
-def ft(x, k, e, d, o):
-	return k * np.exp(-1 * (1 + e * (x-o)) ** (-1 / (e + d)))
+def ft(x, k, e, o):
+	if (1 + e * (x-o)) == 0:
+		return np.exp(-np.exp(-x))
+	return k * np.exp(-1 * ((1 + e * (x-o)) ** (-1 / (e + 0.0001))))
+
+def lognormal(x, k, mu, sigma):
+    return k * np.exp(-1 * ((np.log(x) - mu) ** 2) / (2 * (sigma ** 2) )) 
 
 def getInfos(df2):
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
@@ -100,7 +105,7 @@ def calcWhen(func, popt, match, data):
 
 def iterativeCurveFit(func, x, y, start):
 	outliersweight = None
-	for i in range(1):
+	for i in range(2):
 		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=10000)
 		pred = np.array([func(px, *popt) for px in x])
 		outliersweight = np.abs(pred - y)
@@ -114,7 +119,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
 
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador'] 
 finaldata = []
-for country in countries:
+for country in ['World', 'India', 'United States', 'United Kingdom', 'Italy']:
 	if country in insufficient:
 		continue
 	# if os.path.exists('graphs/'+country+'.pdf'): continue
@@ -131,7 +136,7 @@ for country in countries:
 		days = res[1]
 		start = res[0]
 
-		func = [(gauss, [0, 20, 100]), (weib, [30000, 14, 4, 500]), (ft, [3000, 0.5, 0.001, 100])]
+		func = [(gauss, [0, 20, 100]), (weib, [30000, 14, 4, 500]), (ft, [3000, 0.5, 100]), (lognormal, [0, 20, 100])]
 
 		whichFunc = 0
 		times = 2
@@ -140,29 +145,35 @@ for country in countries:
 		datacopy = np.array(deepcopy(data[1:]))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
 		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=10000)
-		whichFunc = 1
-		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
-		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
-		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
-		# finaldayg, finalexpg = totalExpected(func[0][0], poptg, data)
-		# when97g = calcWhen(func[0][0], poptg, 0.97 * finalexpg, data)
+		whichFunc = 2
+		popt = func[whichFunc][1]
+		# popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		# finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
+		# when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
+		# # finaldayg, finalexpg = totalExpected(func[0][0], poptg, data)
+		# # when97g = calcWhen(func[0][0], poptg, 0.97 * finalexpg, data)
 
-		xlim = max(len(data)*times, when97+10)
+		xlim = max(len(data)*times, 0)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 
 		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction')
 		plt.plot(list(range(xlim))[1:], [func[0][0](px, *poptg) for px in list(range(xlim))[1:]], '--', color='green', label='Gaussian Prediction')
-		print("MSE ", "{:e}".format(mean_squared_error(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
-		print("R2 ", "{:e}".format(r2_score(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
-		print("97 day", start + timedelta(days=when97))
-		print("final day", start + timedelta(days=finalday))
-		print("total cases", finalexp)
+		# print("MSE ", "{:e}".format(mean_squared_error(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
+		# print("R2 ", "{:e}".format(r2_score(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
+		# print("97 day", start + timedelta(days=when97))
+		# print("final day", start + timedelta(days=finalday))
+		# print("total cases", finalexp)
 		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.8, label='Actual Data')
-		dt = list(df2.Date)
-		skip = 30
+		# dt = list(df2.Date)
+		# skip = 30
 
 		# Metrics
-		y = [func[1][0](px, *popt) for px in x[1:]]
+		y = [func[whichFunc][0](px, *popt) for px in x[1:]]
+		y[y == inf] = 0; y[y == -inf] = 0
+		np.nan_to_num(y)
+		y = np.array(np.real(y))
+		y = np.nan_to_num(y)
+		y = np.array(y, dtype='float64')
 		mse = "{:e}".format(mean_squared_error(data[1:], y))
 		mape = "{:e}".format(mean_absolute_percentage_error(data[1:], y))
 		mseg = "{:e}".format(mean_squared_error(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
@@ -173,22 +184,24 @@ for country in countries:
 		maxcases = "{:e}".format(max(y))
 		maxday = y.index(max(y))
 		print(mape, mapeg)
-		finaldata.append([country, finalexp, start + timedelta(days=finalday), start + timedelta(days=when97), maxcases, start + timedelta(days=maxday), mse, mseg, r2, r2g, mape, mapeg])
-		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
-		style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
-		text = plt.annotate('97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
-		text.set_fontsize(10)
+		finaldata.append([country, mse, mseg, r2, r2g, mape, mapeg])
+		# plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
+		# style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
+		# text = plt.annotate('97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
+		# text.set_fontsize(10)
 		# text2 = plt.annotate('(Gaussian)\n97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97g)).strftime("%d %b %Y"), xy = ( when97g , 0 ), size='x-small', ha='center', xytext=( when97g , 3*func[whichFunc][0](when97, *popt)+4000), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
 		# text2.set_fontsize(10)
-		plt.ylabel("New Cases")
-		plt.xlabel("Date")
-		plt.legend()
-		plt.tight_layout()
+		# plt.ylabel("New Cases")
+		# plt.xlabel("Date")
+		# plt.legend()
+		# plt.tight_layout()
 		# plt.savefig('graphs/'+country+'.pdf')
+		plt.show()
 		print(country)
 	except Exception as e:
 		print(str(e))
+		raise e
 		pass
 
-df = pd.DataFrame(finaldata,columns=['Country','Total','Total Day', '97 Day', 'Max Cases', 'Max Day', 'MSE', 'MSE Gaussian', 'R2', 'R2 Gaussian', 'MAPE', 'MAPE Gaussian'])
+df = pd.DataFrame(finaldata,columns=['Country','MSE', 'MSE Gaussian', 'R2', 'R2 Gaussian', 'MAPE', 'MAPE Gaussian'])
 df.to_excel('scores.xlsx')
