@@ -136,9 +136,9 @@ for country in countries:
 		# res, df2 = getSars()
 		# country = 'SARS'
 		data = res[-1]
-		if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
-			print('skip', country,)
-			continue
+		# if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
+		# 	print('skip', country,)
+		# 	continue
 		days = res[1]
 		start = res[0]
 
