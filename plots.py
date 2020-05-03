@@ -117,18 +117,14 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
 finaldata = []
-for country in ['World']:
+dfPlot = pd.DataFrame()
+for country in ['India', 'World', 'United States', 'United Kingdom', 'China', 'Spain', 'Italy', 'France', 'Germany', 'Russia']:
 	# if os.path.exists('graphs/'+country+'.pdf'): continue
 	try:
 		print("--", country)
 		df2 = df[df['Country'] == country]
 		res = getInfoCountry(df2)
-		# res, df2 = getSars()
-		# country = 'SARS'
 		data = res[-1]
-		# if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
-		# 	print('skip', country,)
-		# 	continue
 		days = res[1]
 		start = res[0]
 
@@ -168,8 +164,10 @@ for country in ['World']:
 		y = np.nan_to_num(y)
 		y = np.array(y, dtype='float64')
 
-		df = pd.DataFrame.from_dict({'pred': y, 'dates':[(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))], 'true': datacopy}, orient='index').T
-		df.to_excel('plot.xlsx')
+		newdf = pd.DataFrame.from_dict({country+'-pred': y, country+'-dates':[(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))], country+'-true': data[1:]}, orient='index').T
+		dfPlot[country+'-pred'] = pd.Series(newdf[country+'-pred'])
+		dfPlot[country+'-dates'] = pd.Series(newdf[country+'-dates'])
+		dfPlot[country+'-true'] = pd.Series(newdf[country+'-true'])
 
 		# Metrics
 		y = [func[1][0](px, *popt) for px in x[1:]]
@@ -197,7 +195,8 @@ for country in ['World']:
 		print(country)
 	except Exception as e:
 		print(str(e))
+		raise(e)
 		pass
 
 
-# df.to_excel('plot.xlsx')
+dfPlot.to_excel('plot.xlsx')
