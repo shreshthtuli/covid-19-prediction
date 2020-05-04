@@ -100,7 +100,7 @@ def calcWhen(func, popt, match, data):
 
 def iterativeCurveFit(func, x, y, start):
 	outliersweight = None
-	for i in range(1):
+	for i in range(100):
 		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=10000)
 		pred = np.array([func(px, *popt) for px in x])
 		outliersweight = np.abs(pred - y)
@@ -123,7 +123,7 @@ def getMaxCases(y, data):
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
-insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador'] 
+insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile'] 
 finaldata = []
 for country in countries:
 	if country in insufficient:
@@ -136,9 +136,9 @@ for country in countries:
 		# res, df2 = getSars()
 		# country = 'SARS'
 		data = res[-1]
-		# if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
-		# 	print('skip', country,)
-		# 	continue
+		if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
+			print('skip', country,)
+			continue
 		days = res[1]
 		start = res[0]
 
@@ -194,7 +194,7 @@ for country in countries:
 		plt.xlabel("Date")
 		plt.legend()
 		plt.tight_layout()
-		# plt.savefig('graphs/'+country+'.pdf')
+		# plt.savefig('graphs/'+country.replace(" ", "_")+'.pdf')
 		print(country)
 	except Exception as e:
 		print(str(e))
