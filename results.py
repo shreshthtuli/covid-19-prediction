@@ -194,7 +194,7 @@ for country in countries:
 		plt.xlabel("Date")
 		plt.legend()
 		plt.tight_layout()
-		# plt.savefig('graphs/'+country.replace(" ", "_")+'.pdf')
+		plt.savefig('graphs/newcases/'+country.replace(" ", "_")+'.pdf')
 		print(country)
 	except Exception as e:
 		print(str(e))
