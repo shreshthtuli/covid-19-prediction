@@ -27,8 +27,11 @@ plt.rcParams["text.usetex"] = True
 df = pd.read_csv('owid-covid-data.csv')
 df['Date'] = pd.to_datetime(df.Date)
 
-dfHealth = pd.read_excel('world-health.xls')
+dfHealth = pd.read_excel('datasets/world-health.xls')
 indicators = list(pd.unique(dfHealth['Indicator Name']))[7:]
+indicators.append('Meat Consumption (kg/person)')
+
+dfMeat = pd.read_excel('datasets/meat.xlsx')
 
 countries = list(pd.unique(df['Country']))
 
@@ -45,9 +48,12 @@ def ft(x, k, e, d, o):
 	return k * np.exp(-1 * (1 + e * (x-o)) ** (-1 / (e + d)))
 
 def getMetric(countryname, metricname):
+	if metricname == 'Meat Consumption (kg/person)':
+		df2 = dfMeat[dfMeat['Country'] == countryname]
+		return float(df2[2009]) if not math.isnan(df2[2009]) else 0
 	df2 = dfHealth[dfHealth['Country Name'] == countryname]
 	df3 = df2[df2['Indicator Name'] == metricname]
-	return float(df3['2018']) if not math.isnan(df3['2018']) else 0
+	return float(df3['2017']) if not math.isnan(df3['2017']) else 0
 
 def getInfos(df2):
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days

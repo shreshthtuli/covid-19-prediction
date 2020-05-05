@@ -198,7 +198,7 @@ for country in countries:
 		plt.legend()
 		plt.tight_layout()
 		folder = 'newcases' if not dead else 'dead'
-		plt.savefig('graphs/'+folder+'/'+country.replace(" ", "_")+'.pdf')
+		# plt.savefig('graphs/'+folder+'/'+country.replace(" ", "_")+'.pdf')
 		print(country)
 	except Exception as e:
 		print(str(e))
