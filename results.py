@@ -20,6 +20,8 @@ import os
 
 warnings.simplefilter("ignore")
 
+dead = True
+
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
@@ -75,7 +77,7 @@ def getInfoCountry(df2):
 	totalLength = max(df2.Delta)
 	confirmed = []; new = []
 	for day in range(totalLength):
-		newc = max(0, int(sum(df2.new_cases[df2.Delta == day])))
+		newc = max(0, int(sum(df2.new_cases[df2.Delta == day] if not dead else df2.new_deaths[df2.Delta == day])))
 		new.append(newc)
 		confirmed.append(new[-1] + (confirmed[-1] if len(confirmed) > 1 else 0))
 	return startDate, totalLength, confirmed, new
@@ -136,7 +138,7 @@ for country in countries:
 		# res, df2 = getSars()
 		# country = 'SARS'
 		data = res[-1]
-		if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
+		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
 			print('skip', country,)
 			continue
 		days = res[1]
@@ -186,15 +188,17 @@ for country in countries:
 		finaldata.append([country, finalexp, start + timedelta(days=finalday), start + timedelta(days=when97), maxcases, start + timedelta(days=maxday), mse, mseg, r2, r2g, mape, mapeg])
 		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
 		style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
-		text = plt.annotate('97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
+		annotations = 'cases' if not dead else 'deaths'
+		text = plt.annotate('97\% of Total\nPredicted '+annotations+'\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
 		text.set_fontsize(10)
 		# text2 = plt.annotate('(Gaussian)\n97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97g)).strftime("%d %b %Y"), xy = ( when97g , 0 ), size='x-small', ha='center', xytext=( when97g , 3*func[whichFunc][0](when97, *popt)+4000), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
 		# text2.set_fontsize(10)
-		plt.ylabel("New Cases")
+		plt.ylabel("New Cases" if not dead else "New Deaths")
 		plt.xlabel("Date")
 		plt.legend()
 		plt.tight_layout()
-		plt.savefig('graphs/newcases/'+country.replace(" ", "_")+'.pdf')
+		folder = 'newcases' if not dead else 'dead'
+		plt.savefig('graphs/'+folder+'/'+country.replace(" ", "_")+'.pdf')
 		print(country)
 	except Exception as e:
 		print(str(e))
