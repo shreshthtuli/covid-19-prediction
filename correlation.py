@@ -204,7 +204,7 @@ for country in countries:
 		maxcases, maxday = getMaxCases(y, data)
 		print(mape, mapeg)
 
-		values = [country]
+		values = [country, finalexp]
 		indicatorData = [getMetric(country, i) for i in indicators]
 		values.extend(popt)
 		values.extend(indicatorData)
@@ -225,13 +225,13 @@ for country in countries:
 		print(str(e))
 		pass
 
-df = pd.DataFrame(finaldata,columns=['Country', 'k', 'a', 'b', 'g']+indicators)
+df = pd.DataFrame(finaldata,columns=['Country', 'total cases', 'k', 'a', 'b', 'g']+indicators)
 
 correlationdata = []
 for i in indicators:
-	correlationdata.append([i, df['k'].corr(df[i]), df['a'].corr(df[i]), df['b'].corr(df[i]), df['g'].corr(df[i])])
+	correlationdata.append([i, df['total cases'].corr(df[i]), df['k'].corr(df[i]), df['a'].corr(df[i]), df['b'].corr(df[i]), df['g'].corr(df[i])])
 
-df2 = pd.DataFrame(correlationdata,columns=['Indicator', 'k', 'a', 'b', 'g'])
+df2 = pd.DataFrame(correlationdata,columns=['Indicator', 'total cases', 'k', 'a', 'b', 'g'])
 
 with pd.ExcelWriter('correlation.xlsx') as writer:  
     df.to_excel(writer, sheet_name='Raw Data')
