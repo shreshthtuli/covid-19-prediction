@@ -20,6 +20,8 @@ import os
 
 warnings.simplefilter("ignore")
 
+dead = True
+
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
@@ -80,7 +82,7 @@ def getInfoCountry(df2):
 	totalLength = max(df2.Delta)
 	confirmed = []; new = []
 	for day in range(totalLength):
-		newc = max(0, int(sum(df2.new_cases[df2.Delta == day])))
+		newc = max(0, int(sum(df2.new_cases[df2.Delta == day] if not dead else df2.new_deaths[df2.Delta == day])))
 		new.append(newc)
 		confirmed.append(new[-1] + (confirmed[-1] if len(confirmed) > 1 else 0))
 	return startDate, totalLength, confirmed, new
@@ -130,9 +132,9 @@ for country in ['World', 'India', 'United States', 'United Kingdom', 'Italy']:
 		# res, df2 = getSars()
 		# country = 'SARS'
 		data = res[-1]
-		if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
-			print('skip', country,)
-			continue
+		# if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
+		# 	print('skip', country,)
+		# 	continue
 		days = res[1]
 		start = res[0]
 
@@ -145,7 +147,7 @@ for country in ['World', 'India', 'United States', 'United Kingdom', 'Italy']:
 		datacopy = np.array(deepcopy(data[1:]))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
 		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=10000)
-		whichFunc = 2
+		whichFunc = 3
 		popt = func[whichFunc][1]
 		# popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
 		# finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)

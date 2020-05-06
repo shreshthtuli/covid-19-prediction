@@ -30,8 +30,10 @@ df['Date'] = pd.to_datetime(df.Date)
 dfHealth = pd.read_excel('datasets/world-health.xls')
 indicators = list(pd.unique(dfHealth['Indicator Name']))[7:]
 indicators.append('Meat Consumption (kg/person)')
+indicators.append('Average Yearly Temperature (C)')
 
 dfMeat = pd.read_excel('datasets/meat.xlsx')
+dfTemp = pd.read_excel('datasets/temp.xlsx')
 
 countries = list(pd.unique(df['Country']))
 
@@ -51,6 +53,9 @@ def getMetric(countryname, metricname):
 	if metricname == 'Meat Consumption (kg/person)':
 		df2 = dfMeat[dfMeat['Country'] == countryname]
 		return float(df2[2009]) if not math.isnan(df2[2009]) else 0
+	if metricname == 'Average Yearly Temperature (C)':
+		df2 = dfTemp[dfTemp['Country'] == countryname]
+		return float(df2['temp']) if not math.isnan(df2['temp']) else 0
 	df2 = dfHealth[dfHealth['Country Name'] == countryname]
 	df3 = df2[df2['Indicator Name'] == metricname]
 	return float(df3['2017']) if not math.isnan(df3['2017']) else 0
