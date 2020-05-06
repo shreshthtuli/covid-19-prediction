@@ -219,5 +219,5 @@ for country in countries:
 		print(str(e))
 		pass
 
-df = pd.DataFrame(finaldata,columns=['Country','Total','Total Day', '97 Day', 'Max Cases', 'Max Day', 'MSE', 'MSE Gaussian', 'R2', 'R2 Gaussian', 'MAPE', 'MAPE Gaussian'])
-df.to_excel('scores.xlsx')
+# df = pd.DataFrame(finaldata,columns=['Country','Total','Total Day', '97 Day', 'Max Cases', 'Max Day', 'MSE', 'MSE Gaussian', 'R2', 'R2 Gaussian', 'MAPE', 'MAPE Gaussian'])
+# df.to_excel('scores.xlsx')
