@@ -127,7 +127,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
 
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile'] 
 finaldata = []
-for country in countries:
+for country in ['India']:
 	if country in insufficient:
 		continue
 	# if os.path.exists('graphs/'+country+'.pdf'): continue
@@ -168,7 +168,7 @@ for country in countries:
 		print("97 day", start + timedelta(days=when97))
 		print("final day", start + timedelta(days=finalday))
 		print("total cases", finalexp)
-		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.5, label='Actual Data (new)')
+		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.2, label='Actual Data (new)')
 		dt = list(df2.Date)
 		skip = 30
 
@@ -183,41 +183,49 @@ for country in countries:
 		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 		maxcases, maxday = getMaxCases(y, data)
 		print(mape, mapeg)
-		finaldata.append([country, finalexp, start + timedelta(days=finalday), start + timedelta(days=when97), maxcases, start + timedelta(days=maxday), mse, mseg, r2, r2g, mape, mapeg])
 		style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
 		plt.ylabel("Number of cases")
 		plt.xlabel("Date")
 		plt.tight_layout()
 		folder = 'both'
-		plt.legend()
-		# plt.twinx()
+		plt.legend(loc='best')
 
 		dead = True
 		print("--", country)
 		df2 = df[df['Country'] == country]
 		res = getInfoCountry(df2, True)
 		data = res[-1]
+
+		xlim2 = max(len(data)*times, when97+10)
+		xlim = max(xlim, xlim2)
+
+		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%d %b %y") for i in range(0,xlim,skip)], rotation=45, ha='right')
+		plt.twinx()
+
+
 		datacopy = np.array(deepcopy(data[1:]))
+		poptold = popt
 		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
-
-		xlim2 = max(len(data)*times, when97+10)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
+		maxcases2, maxday2 = getMaxCases(pred, data)
 
 		plt.plot(list(range(xlim2))[1:], pred, color='purple', label='Robust Weibull Prediction (dead)')
-		_ = plt.bar(x, data, width=1, color='green', edgecolor='black', linewidth=0.01, alpha=0.5, label='Actual Data (dead)')
-		plt.legend()
-
+		_ = plt.bar(x, data, width=1, color='green', edgecolor='black', linewidth=0.01, alpha=0.2, label='Actual Data (dead)')
+		plt.legend(loc=7)
+		plt.ylabel("Number of deaths")
 		xlim = max(xlim, xlim2)
-		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
-
 
 		plt.savefig('graphs/'+'both'+'/'+country.replace(" ", "_")+'.pdf')
+		values = [country, (start+timedelta(days=maxday)).strftime("%d %b %Y"), (start+timedelta(days=maxday2)).strftime("%d %b %Y"), abs(maxday-maxday2)]
+		values.extend(poptold)
+		values.extend(popt)
+		finaldata.append(values)
 		print(country)
 	except Exception as e:
 		print(str(e))
 		pass
 
-# df = pd.DataFrame(finaldata,columns=['Country','Total','Total Day', '97 Day', 'Max Cases', 'Max Day', 'MSE', 'MSE Gaussian', 'R2', 'R2 Gaussian', 'MAPE', 'MAPE Gaussian'])
-# df.to_excel('scores.xlsx')
+df = pd.DataFrame(finaldata,columns=['Country','Max day (cases)','Max day (deaths)', 'Difference (days)', 'k (new)', 'a (new)', 'b (new)', 'g (new)', 'k (dead)', 'a (dead)', 'b (dead)', 'g (dead)'])
+df.to_excel('params.xlsx')
