@@ -25,8 +25,10 @@ dead = True
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
-df = pd.read_csv('owid-covid-data.csv')
+df = pd.read_csv('owid-covid-data1.csv')
+dfOld = pd.read_csv('owid-covid-data.csv')
 df['Date'] = pd.to_datetime(df.Date)
+dfOld['Date'] = pd.to_datetime(dfOld.Date)
 
 countries = list(pd.unique(df['Country']))
 
@@ -125,21 +127,19 @@ def getMaxCases(y, data):
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
-insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile'] 
+insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Peru'] 
 finaldata = []
-for country in ['India']:
+for country in countries:
 	if country in insufficient:
 		continue
-	# if os.path.exists('graphs/'+country+'.pdf'): continue
+	# if os.path.exists('graphs/'+'both'+'/'+country.replace(" ", "_")+'.pdf'): continue
 	try:
 		dead = False
 		print("--", country)
-		df2 = df[df['Country'] == country]
+		df2 = df[df['Country'] == country] if country not in ['Russia'] else dfOld[dfOld['Country'] == country]
 		res = getInfoCountry(df2, False)
-		# res, df2 = getSars()
-		# country = 'SARS'
 		data = res[-1]
-		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
+		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Iran', 'Israel', 'Oman']:
 			print('skip', country,)
 			continue
 		days = res[1]
@@ -189,6 +189,7 @@ for country in ['India']:
 		plt.tight_layout()
 		folder = 'both'
 		plt.legend(loc='best')
+		plt.title(country)
 
 		dead = True
 		print("--", country)
@@ -225,7 +226,7 @@ for country in ['India']:
 		print(country)
 	except Exception as e:
 		print(str(e))
-		raise(e)
+		# raise(e)
 		pass
 
 df = pd.DataFrame(finaldata,columns=['Country','Max day (cases)','Max day (deaths)', 'Difference (days)', 'k (new)', 'a (new)', 'b (new)', 'g (new)', 'k (dead)', 'a (dead)', 'b (dead)', 'g (dead)'])
