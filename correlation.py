@@ -213,6 +213,7 @@ for country in countries:
 		maxcases2, maxday2 = getMaxCases(pred, data)
 
 		population = getMetric(country, 'Population, total')
+		print(population)
 		values = [country, r2, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
 		indicatorData = [getMetric(country, i) for i in indicators]
 		values.extend(poptold)
