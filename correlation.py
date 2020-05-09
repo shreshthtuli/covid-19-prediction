@@ -25,7 +25,9 @@ plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
 df = pd.read_csv('owid-covid-data1.csv')
+dfOld = pd.read_csv('owid-covid-data.csv')
 df['Date'] = pd.to_datetime(df.Date)
+dfOld['Date'] = pd.to_datetime(dfOld.Date)
 
 dfHealth = pd.read_excel('datasets/world-health.xls')
 indicators = list(pd.unique(dfHealth['Indicator Name']))[7:]
@@ -65,8 +67,8 @@ def getMetric(countryname, metricname):
 		return float(df2[2009].values[0]) if len(df2[2009].values) != 0 else 0
 	if metricname == 'Average Yearly Temperature (C)':
 		df2 = dfTemp[dfTemp['Country'] == countryname]
-		temp = str(df2['temp'].values[0])
-		return float(temp.strip()) if not math.isnan(df2['temp']) else 0
+		temp = str(df2['temp'].values[0]) if len(df2['temp'].values) > 0 else 0
+		return float(temp)
 	df2 = dfHealth[dfHealth['Country Name'] == countryname]
 	df3 = df2[df2['Indicator Name'] == metricname]
 	return float(df3['2017'].values[0]) if len(df3['2017'].values) != 0 else 0
@@ -154,21 +156,18 @@ def getMaxCases(y, data):
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
-insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile'] 
+insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddata = []
 for country in countries:
 	if country in insufficient:
 		continue
-	# if os.path.exists('graphs/'+country+'.pdf'): continue
 	try:
 		dead = False
 		print("--", country)
-		df2 = df[df['Country'] == country]
+		df2 = df[df['Country'] == country] if country not in ['Russia'] else dfOld[dfOld['Country'] == country]
 		res = getInfoCountry(df2, False)
-		# res, df2 = getSars()
-		# country = 'SARS'
 		data = res[-1]
-		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
+		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Iran', 'Israel', 'Oman']:
 			print('skip', country,)
 			continue
 		days = res[1]
@@ -178,7 +177,6 @@ for country in countries:
 
 		whichFunc = 0
 		times = 2
-		plt.figure(figsize=(6,3))
 		x = list(range(len(data)))
 		datacopy = np.array(deepcopy(data[1:]))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
@@ -191,7 +189,6 @@ for country in countries:
 		xlim = max(len(data)*times, when97+10)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 
-		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction (new)')
 		print("MSE ", "{:e}".format(mean_squared_error(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
 		print("R2 ", "{:e}".format(r2_score(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
 
@@ -202,7 +199,6 @@ for country in countries:
 		maxcases, maxday = getMaxCases(y, data)
 
 		dead = True
-		df2 = df[df['Country'] == country]
 		res = getInfoCountry(df2, True)
 		data = res[-1]
 
@@ -230,10 +226,9 @@ for country in countries:
 		# raise(e)
 		pass
 
-params = ['max diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
+params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
 df = pd.DataFrame(finaldata,columns=['Country', 'R2']+params+indicators)
 dfgood = pd.DataFrame(gooddata,columns=['Country', 'R2']+params+indicators)
-print(finaldata)
 
 correlationdata = []
 goodcorrdata = []
