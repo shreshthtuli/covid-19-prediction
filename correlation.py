@@ -56,7 +56,7 @@ def ft(x, k, e, d, o):
 
 def getMetric(countryname, metricname):
 	if metricname in strainTypes:
-		df2 = dfStrains[dfMeat['Country'] == countryname]
+		df2 = dfStrains[dfStrains['Country'] == countryname]
 		if len(df2[metricname].values) == 0: val = 1
 		else: val = float(df2[metricname].values[0])+1 if not math.isnan(df2[metricname]) else 1
 		if len(df2['Total'].values) == 0: tot = len(strainTypes)
