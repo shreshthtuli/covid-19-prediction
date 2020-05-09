@@ -25,7 +25,7 @@ dead = True
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
-df = pd.read_csv('owid-covid-data1.csv')
+df = pd.read_csv('owid-covid-data.csv')
 df['Date'] = pd.to_datetime(df.Date)
 
 countries = list(pd.unique(df['Country']))
@@ -103,7 +103,7 @@ def calcWhen(func, popt, match, data):
 def iterativeCurveFit(func, x, y, start):
 	outliersweight = None
 	for i in range(100):
-		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=10000)
+		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=100000)
 		pred = np.array([func(px, *popt) for px in x])
 		outliersweight = np.abs(pred - y)
 		outliersweight = 1 - np.tanh(outliersweight)
@@ -153,7 +153,7 @@ for country in ['India']:
 		x = list(range(len(data)))
 		datacopy = np.array(deepcopy(data[1:]))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
-		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=10000)
+		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=100000)
 		whichFunc = 1
 		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
@@ -165,9 +165,9 @@ for country in ['India']:
 		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction (new)')
 		print("MSE ", "{:e}".format(mean_squared_error(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
 		print("R2 ", "{:e}".format(r2_score(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
-		print("97 day", start + timedelta(days=when97))
-		print("final day", start + timedelta(days=finalday))
-		print("total cases", finalexp)
+		# print("97 day", start + timedelta(days=when97))
+		# print("final day", start + timedelta(days=finalday))
+		# print("total cases", finalexp)
 		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.2, label='Actual Data (new)')
 		dt = list(df2.Date)
 		skip = 30
@@ -225,6 +225,7 @@ for country in ['India']:
 		print(country)
 	except Exception as e:
 		print(str(e))
+		raise(e)
 		pass
 
 df = pd.DataFrame(finaldata,columns=['Country','Max day (cases)','Max day (deaths)', 'Difference (days)', 'k (new)', 'a (new)', 'b (new)', 'g (new)', 'k (dead)', 'a (dead)', 'b (dead)', 'g (dead)'])

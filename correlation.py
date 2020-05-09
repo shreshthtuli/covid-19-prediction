@@ -24,7 +24,7 @@ warnings.simplefilter("ignore")
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
-df = pd.read_csv('owid-covid-data.csv')
+df = pd.read_csv('owid-covid-data1.csv')
 df['Date'] = pd.to_datetime(df.Date)
 
 dfHealth = pd.read_excel('datasets/world-health.xls')
@@ -34,6 +34,9 @@ indicators.append('Average Yearly Temperature (C)')
 
 dfMeat = pd.read_excel('datasets/meat.xlsx')
 dfTemp = pd.read_excel('datasets/temp.xlsx')
+dfStrains = pd.read_excel('datasets/strains.xlsx')
+strainTypes = ['O', 'B', 'B1', 'B2', 'B4', 'A3', 'A6', 'A7', 'A1a', 'A2', 'A2a']
+indicators.extend(strainTypes)
 
 countries = list(pd.unique(df['Country']))
 
@@ -50,15 +53,23 @@ def ft(x, k, e, d, o):
 	return k * np.exp(-1 * (1 + e * (x-o)) ** (-1 / (e + d)))
 
 def getMetric(countryname, metricname):
+	if metricname in strainTypes:
+		df2 = dfStrains[dfMeat['Country'] == countryname]
+		if len(df2[metricname].values) == 0: val = 1
+		else: val = float(df2[metricname].values[0])+1 if not math.isnan(df2[metricname]) else 1
+		if len(df2['Total'].values) == 0: tot = len(strainTypes)
+		else: tot = float(df2['Total'].values[0])+1
+		return float(val/tot)
 	if metricname == 'Meat Consumption (kg/person)':
 		df2 = dfMeat[dfMeat['Country'] == countryname]
-		return float(df2[2009]) if not math.isnan(df2[2009]) else 0
+		return float(df2[2009].values[0]) if len(df2[2009].values) != 0 else 0
 	if metricname == 'Average Yearly Temperature (C)':
 		df2 = dfTemp[dfTemp['Country'] == countryname]
-		return float(df2['temp']) if not math.isnan(df2['temp']) else 0
+		temp = str(df2['temp'].values[0])
+		return float(temp.strip()) if not math.isnan(df2['temp']) else 0
 	df2 = dfHealth[dfHealth['Country Name'] == countryname]
 	df3 = df2[df2['Indicator Name'] == metricname]
-	return float(df3['2017']) if not math.isnan(df3['2017']) else 0
+	return float(df3['2017'].values[0]) if len(df3['2017'].values) != 0 else 0
 
 def getInfos(df2):
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
@@ -89,13 +100,13 @@ def getSars():
 	print(new)
 	return [[startDate, totalLength, confirmed, new], df2]
 
-def getInfoCountry(df2):
+def getInfoCountry(df2, isdead):
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
 	startDate = min(df2.Date)
 	totalLength = max(df2.Delta)
 	confirmed = []; new = []
 	for day in range(totalLength):
-		newc = max(0, int(sum(df2.new_cases[df2.Delta == day])))
+		newc = max(0, int(sum(df2.new_cases[df2.Delta == day] if not isdead else df2.new_deaths[df2.Delta == day])))
 		new.append(newc)
 		confirmed.append(new[-1] + (confirmed[-1] if len(confirmed) > 1 else 0))
 	return startDate, totalLength, confirmed, new
@@ -121,7 +132,7 @@ def calcWhen(func, popt, match, data):
 def iterativeCurveFit(func, x, y, start):
 	outliersweight = None
 	for i in range(100):
-		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=10000)
+		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=100000)
 		pred = np.array([func(px, *popt) for px in x])
 		outliersweight = np.abs(pred - y)
 		outliersweight = 1 - np.tanh(outliersweight)
@@ -144,19 +155,20 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile'] 
-finaldata = []
+finaldata = []; gooddata = []
 for country in countries:
 	if country in insufficient:
 		continue
 	# if os.path.exists('graphs/'+country+'.pdf'): continue
 	try:
+		dead = False
 		print("--", country)
 		df2 = df[df['Country'] == country]
-		res = getInfoCountry(df2)
+		res = getInfoCountry(df2, False)
 		# res, df2 = getSars()
 		# country = 'SARS'
 		data = res[-1]
-		if sum(data) < 2000 and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
+		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Peru', 'Iran', 'Israel', 'Oman']:
 			print('skip', country,)
 			continue
 		days = res[1]
@@ -170,69 +182,70 @@ for country in countries:
 		x = list(range(len(data)))
 		datacopy = np.array(deepcopy(data[1:]))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
-		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=10000)
+		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=100000)
 		whichFunc = 1
 		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
-		# finaldayg, finalexpg = totalExpected(func[0][0], poptg, data)
-		# when97g = calcWhen(func[0][0], poptg, 0.97 * finalexpg, data)
 
 		xlim = max(len(data)*times, when97+10)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 
-		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction')
-		plt.plot(list(range(xlim))[1:], [func[0][0](px, *poptg) for px in list(range(xlim))[1:]], '--', color='green', label='Gaussian Prediction')
+		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction (new)')
 		print("MSE ", "{:e}".format(mean_squared_error(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
 		print("R2 ", "{:e}".format(r2_score(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
-		print("97 day", start + timedelta(days=when97))
-		print("final day", start + timedelta(days=finalday))
-		print("total cases", finalexp)
-		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.8, label='Actual Data')
-		dt = list(df2.Date)
-		skip = 30
 
 		# Metrics
 		y = [func[1][0](px, *popt) for px in x[1:]]
-		mse = "{:e}".format(mean_squared_error(data[1:], y))
-		mape = "{:e}".format(mean_absolute_percentage_error(data[1:], y))
-		mseg = "{:e}".format(mean_squared_error(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
-		mapeg = "{:e}".format(mean_absolute_percentage_error(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
-		r2 = "{:e}".format(r2_score(data[1:], y))
-		r2g = "{:e}".format(r2_score(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
+		r2 = r2_score(data[1:], y)
 		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 		maxcases, maxday = getMaxCases(y, data)
-		print(mape, mapeg)
 
-		values = [country, finalexp]
+		dead = True
+		df2 = df[df['Country'] == country]
+		res = getInfoCountry(df2, True)
+		data = res[-1]
+
+		xlim2 = max(len(data)*times, when97+10)
+
+		datacopy = np.array(deepcopy(data[1:]))
+		poptold = popt
+		finalexpold = finalexp
+		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
+		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
+		maxcases2, maxday2 = getMaxCases(pred, data)
+
+		population = getMetric(country, 'Population, total')
+		values = [country, r2, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
 		indicatorData = [getMetric(country, i) for i in indicators]
+		values.extend(poptold)
 		values.extend(popt)
 		values.extend(indicatorData)
 		finaldata.append(values)
-		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
-		style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
-		text = plt.annotate('97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
-		text.set_fontsize(10)
-		# text2 = plt.annotate('(Gaussian)\n97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97g)).strftime("%d %b %Y"), xy = ( when97g , 0 ), size='x-small', ha='center', xytext=( when97g , 3*func[whichFunc][0](when97, *popt)+4000), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
-		# text2.set_fontsize(10)
-		plt.ylabel("New Cases")
-		plt.xlabel("Date")
-		plt.legend()
-		plt.tight_layout()
-		# plt.savefig('graphs/newcases/'+country.replace(" ", "_")+'.pdf')
-		print(country)
+		if r2 >= 0.8: gooddata.append(finaldata[-1])
+		print("----", country)
 	except Exception as e:
 		print(str(e))
+		# raise(e)
 		pass
 
-df = pd.DataFrame(finaldata,columns=['Country', 'total cases', 'k', 'a', 'b', 'g']+indicators)
+params = ['max diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
+df = pd.DataFrame(finaldata,columns=['Country', 'R2']+params+indicators)
+dfgood = pd.DataFrame(gooddata,columns=['Country', 'R2']+params+indicators)
+print(finaldata)
 
 correlationdata = []
+goodcorrdata = []
 for i in indicators:
-	correlationdata.append([i, df['total cases'].corr(df[i]), df['k'].corr(df[i]), df['a'].corr(df[i]), df['b'].corr(df[i]), df['g'].corr(df[i])])
+	correlationdata.append([i] + [df[p].corr(df[i]) for p in params])
+	goodcorrdata.append([i] + [dfgood[p].corr(dfgood[i]) for p in params])
 
-df2 = pd.DataFrame(correlationdata,columns=['Indicator', 'total cases', 'k', 'a', 'b', 'g'])
+df2 = pd.DataFrame(correlationdata,columns=['Indicator']+params)
+df2good = pd.DataFrame(goodcorrdata,columns=['Indicator']+params)
 
 with pd.ExcelWriter('correlation.xlsx') as writer:  
     df.to_excel(writer, sheet_name='Raw Data')
     df2.to_excel(writer, sheet_name='Correlation Data')
+    dfgood.to_excel(writer, sheet_name='Raw Data >0.8')
+    df2good.to_excel(writer, sheet_name='Correlation Data >0.8')
