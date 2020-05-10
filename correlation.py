@@ -130,7 +130,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddata = []
 ignore = -1
-for country in ['ignore']:
+for country in countries:
 	if country in insufficient:
 		continue
 	try:
