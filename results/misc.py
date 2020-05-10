@@ -22,7 +22,7 @@ warnings.simplefilter("ignore")
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
-df = pd.read_excel('results/misc.xlsx')
+df = pd.read_excel('misc.xlsx')
 countries = df['Country']
 data = df['Mortality rate']
 

@@ -57,7 +57,7 @@ def getInfos(df2):
 	return startDate, totalLength, confirmed, new
 
 def getSars():
-	df2 = pd.read_csv('sars_2003_complete_dataset_clean.csv')
+	df2 = pd.read_csv('datasets/sars_2003_complete_dataset_clean.csv')
 	# df2 = df2[df2['Country'] == 'Vietnam']
 	df2['Date'] = pd.to_datetime(df2.Date, format="%Y-%m-%d")
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days

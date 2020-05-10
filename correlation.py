@@ -24,10 +24,8 @@ warnings.simplefilter("ignore")
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
-df = pd.read_csv('owid-covid-data1.csv')
-dfOld = pd.read_csv('owid-covid-data.csv')
+df = pd.read_csv('owid-covid-data.csv')
 df['Date'] = pd.to_datetime(df.Date)
-dfOld['Date'] = pd.to_datetime(dfOld.Date)
 
 dfHealth = pd.read_excel('datasets/world-health.xls')
 indicators = list(pd.unique(dfHealth['Indicator Name']))[7:]
@@ -73,35 +71,6 @@ def getMetric(countryname, metricname):
 	df3 = df2[df2['Indicator Name'] == metricname]
 	return float(df3['2017'].values[0]) if len(df3['2017'].values) != 0 else 0
 
-def getInfos(df2):
-	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
-	startDate = min(df2.Date)
-	totalLength = max(df2.Delta)
-	confirmed = []; new = []
-	for day in range(totalLength):
-		if not df2.Confirmed[df2.Delta == day].empty:
-			lastconfirmed = int(sum(df2.Confirmed[df2.Delta == day]))  
-		else:
-			confirmed[-1] if confirmed != [] else 0
-		confirmed.append(lastconfirmed)
-		new.append(confirmed[-1] - (confirmed[-2] if len(confirmed) > 1 else 0))
-	return startDate, totalLength, confirmed, new
-
-def getSars():
-	df2 = pd.read_csv('sars_2003_complete_dataset_clean.csv')
-	# df2 = df2[df2['Country'] == 'Vietnam']
-	df2['Date'] = pd.to_datetime(df2.Date, format="%Y-%m-%d")
-	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
-	startDate = min(df2.Date)
-	totalLength = max(df2.Delta)
-	confirmed = []; new = []; conf = 0
-	for day in range(totalLength):
-		conf = max(conf, int(sum(df2.confirmed[df2.Delta == day]))  )
-		confirmed.append(conf)
-		new.append(confirmed[-1] - (confirmed[-2] if len(confirmed) > 1 else 0))
-	print(new)
-	return [[startDate, totalLength, confirmed, new], df2]
-
 def getInfoCountry(df2, isdead):
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
 	startDate = min(df2.Date)
@@ -133,9 +102,10 @@ def calcWhen(func, popt, match, data):
 
 def iterativeCurveFit(func, x, y, start):
 	outliersweight = None
-	for i in range(100):
+	for i in range(10):
 		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=100000)
 		pred = np.array([func(px, *popt) for px in x])
+		old = outliersweight
 		outliersweight = np.abs(pred - y)
 		outliersweight = 1 - np.tanh(outliersweight)
 		outliersweight = outliersweight / np.max(outliersweight)
@@ -164,7 +134,7 @@ for country in countries:
 	try:
 		dead = False
 		print("--", country)
-		df2 = df[df['Country'] == country] if country not in ['Russia'] else dfOld[dfOld['Country'] == country]
+		df2 = df[df['Country'] == country]
 		res = getInfoCountry(df2, False)
 		data = res[-1]
 		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Iran', 'Israel', 'Oman']:
@@ -176,7 +146,8 @@ for country in countries:
 		func = [(gauss, [0, 20, 100]), (weib, [30000, 14, 4, 500]), (ft, [3000, 0.5, 0.001, 100])]
 
 		whichFunc = 0
-		times = 2
+		times = 2; skip = 30
+		plt.figure(figsize=(6,3))
 		x = list(range(len(data)))
 		datacopy = np.array(deepcopy(data[1:]))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
@@ -186,15 +157,25 @@ for country in countries:
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
 
+		when97 = 1000 if when97 > 1000 else when97
 		xlim = max(len(data)*times, when97+10)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 
-		print("MSE ", "{:e}".format(mean_squared_error(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
-		print("R2 ", "{:e}".format(r2_score(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
+		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction (new)')
+		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.2, label='Actual Data (new)')
+		plt.ylabel("Number of cases"); plt.xlabel("Date"); plt.tight_layout(); 
+		plt.legend(loc='best');	plt.title(country)
 
-		# Metrics
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		r2 = r2_score(data[1:], y)
+		mape = mean_absolute_percentage_error(data[1:], y)
+
+		print("MSE ", "{:e}".format(mean_squared_error(data[1:], y)))
+		print("R2 ", "{:e}".format(r2))
+		print("97 day", start + timedelta(days=when97))
+		print("MAPE", "{:e}".format(mape))
+
+		# Metrics
 		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 		maxcases, maxday = getMaxCases(y, data)
 
@@ -204,6 +185,10 @@ for country in countries:
 
 		xlim2 = max(len(data)*times, when97+10)
 
+		xlim = max(xlim, xlim2)
+		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%d %b %y") for i in range(0,xlim,skip)], rotation=45, ha='right')
+		plt.twinx()
+
 		datacopy = np.array(deepcopy(data[1:]))
 		poptold = popt
 		finalexpold = finalexp
@@ -211,16 +196,23 @@ for country in countries:
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		maxcases2, maxday2 = getMaxCases(pred, data)
+		plt.plot(list(range(xlim2))[1:], pred, color='purple', label='Robust Weibull Prediction (dead)')
+		_ = plt.bar(x, data, width=1, color='green', edgecolor='black', linewidth=0.01, alpha=0.2, label='Actual Data (dead)')
+		plt.legend(loc=7)
+		plt.ylabel("Number of deaths")
+
+		plt.savefig('graphs/'+'both'+'/'+country.replace(" ", "_")+'.pdf')
 
 		population = getMetric(country, 'Population, total')
-		print(population)
-		values = [country, r2, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
+		values = [country, r2, mape, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
 		indicatorData = [getMetric(country, i) for i in indicators]
 		values.extend(poptold)
 		values.extend(popt)
 		values.extend(indicatorData)
 		finaldata.append(values)
-		if r2 >= 0.8: gooddata.append(finaldata[-1])
+		if r2 >= 0.8: 
+			gooddata.append(finaldata[-1])
+			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
 		print("----", country)
 	except Exception as e:
 		print(str(e))
@@ -228,8 +220,8 @@ for country in countries:
 		pass
 
 params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
-df = pd.DataFrame(finaldata,columns=['Country', 'R2']+params+indicators)
-dfgood = pd.DataFrame(gooddata,columns=['Country', 'R2']+params+indicators)
+df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE']+params+indicators)
+dfgood = pd.DataFrame(gooddata,columns=['Country', 'R2', 'MAPE']+params+indicators)
 
 correlationdata = []
 goodcorrdata = []

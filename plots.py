@@ -47,20 +47,19 @@ def getInfos(df2):
 		new.append(confirmed[-1] - (confirmed[-2] if len(confirmed) > 1 else 0))
 	return startDate, totalLength, confirmed, new
 
-def getInfoCountry(df2):
+def getInfoCountry(df2, isdead):
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
-	# print(df2)
 	startDate = min(df2.Date)
 	totalLength = max(df2.Delta)
 	confirmed = []; new = []
 	for day in range(totalLength):
-		newc = int(sum(df2.new_cases[df2.Delta == day]))  
+		newc = max(0, int(sum(df2.new_cases[df2.Delta == day] if not isdead else df2.new_deaths[df2.Delta == day])))
 		new.append(newc)
 		confirmed.append(new[-1] + (confirmed[-1] if len(confirmed) > 1 else 0))
 	return startDate, totalLength, confirmed, new
 
 def getSars():
-	df = pd.read_csv('sars_2003_complete_dataset_clean.csv')
+	df = pd.read_csv('datasets/sars_2003_complete_dataset_clean.csv')
 	df['Date'] = pd.to_datetime(df.Date)
 	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
 	startDate = min(df2.Date)
@@ -116,14 +115,16 @@ def getMaxCases(y, data):
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
+dead = False
 finaldata = []
 dfPlot = pd.DataFrame()
-for country in ['India', 'World', 'United States', 'United Kingdom', 'China', 'Spain', 'Italy', 'France', 'Germany', 'Russia']:
+interactive = ['India', 'World', 'United States', 'United Kingdom', 'China', 'Spain', 'Italy', 'France', 'Germany', 'Russia']
+for country in interactive:
 	# if os.path.exists('graphs/'+country+'.pdf'): continue
 	try:
 		print("--", country)
 		df2 = df[df['Country'] == country]
-		res = getInfoCountry(df2)
+		res = getInfoCountry(df2, dead)
 		data = res[-1]
 		days = res[1]
 		start = res[0]
@@ -133,6 +134,7 @@ for country in ['India', 'World', 'United States', 'United Kingdom', 'China', 'S
 		whichFunc = 0
 		times = 2
 		plt.figure(figsize=(6,3))
+		plt.title(country)
 		x = list(range(len(data)))
 		datacopy = np.array(deepcopy(data[1:]))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
@@ -183,15 +185,16 @@ for country in ['India', 'World', 'United States', 'United Kingdom', 'China', 'S
 		finaldata.append([country, finalexp, start + timedelta(days=finalday), start + timedelta(days=when97), maxcases, start + timedelta(days=maxday), mse, mseg, r2, r2g, mape, mapeg])
 		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
 		style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
-		text = plt.annotate('97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
+		what = 'deaths' if dead else 'cases'
+		text = plt.annotate('97\% of Total\nPredicted '+what+'\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
 		text.set_fontsize(10)
-		# text2 = plt.annotate('(Gaussian)\n97\% of Total\nPredicted cases\non '+(start+timedelta(days=when97g)).strftime("%d %b %Y"), xy = ( when97g , 0 ), size='x-small', ha='center', xytext=( when97g , 3*func[whichFunc][0](when97, *popt)+4000), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
+		# text2 = plt.annotate('(Gaussian)\n97\% of Total\nPredicted '+what+'\non '+(start+timedelta(days=when97g)).strftime("%d %b %Y"), xy = ( when97g , 0 ), size='x-small', ha='center', xytext=( when97g , 3*func[whichFunc][0](when97, *popt)+4000), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
 		# text2.set_fontsize(10)
 		plt.ylabel("New Cases")
 		plt.xlabel("Date")
 		plt.legend()
 		plt.tight_layout()
-		# plt.savefig(country+'.pdf')
+		# plt.savefig('graphs/'+('dead/' if dead else 'newcases/')+country.replace(" ", "_")+'.pdf')
 		print(country)
 	except Exception as e:
 		print(str(e))
