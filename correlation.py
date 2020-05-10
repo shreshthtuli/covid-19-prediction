@@ -110,6 +110,7 @@ def iterativeCurveFit(func, x, y, start):
 		outliersweight = 1 - np.tanh(outliersweight)
 		outliersweight = outliersweight / np.max(outliersweight)
 		outliersweight = softmax(1 - outliersweight)
+		if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
 	return popt, pcov
 
 def getMaxCases(y, data):
@@ -128,7 +129,8 @@ def mean_absolute_percentage_error(y_true, y_pred):
 
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddata = []
-for country in countries:
+ignore = -1
+for country in ['ignore']:
 	if country in insufficient:
 		continue
 	try:
@@ -136,14 +138,14 @@ for country in countries:
 		print("--", country)
 		df2 = df[df['Country'] == country]
 		res = getInfoCountry(df2, False)
-		data = res[-1]
+		data = res[-1][:ignore]
 		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Iran', 'Israel', 'Oman']:
 			print('skip', country,)
 			continue
 		days = res[1]
 		start = res[0]
 
-		func = [(gauss, [0, 20, 100]), (weib, [30000, 14, 4, 500]), (ft, [3000, 0.5, 0.001, 100])]
+		func = [(gauss, [0, 20, 100]), (weib, [60000, 14, 4, 500]), (ft, [7000, 0.5, 0.001, 100])]
 
 		whichFunc = 0
 		times = 2; skip = 30
@@ -171,9 +173,9 @@ for country in countries:
 		mape = mean_absolute_percentage_error(data[1:], y)
 
 		print("MSE ", "{:e}".format(mean_squared_error(data[1:], y)))
-		print("R2 ", "{:e}".format(r2))
-		print("97 day", start + timedelta(days=when97))
-		print("MAPE", "{:e}".format(mape))
+		print("R2 ", r2)
+		print("97 day", (start + timedelta(days=when97)).strftime("%d %b %y"))
+		print("MAPE", mape)
 
 		# Metrics
 		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
@@ -181,7 +183,7 @@ for country in countries:
 
 		dead = True
 		res = getInfoCountry(df2, True)
-		data = res[-1]
+		data = res[-1][:ignore]
 
 		xlim2 = max(len(data)*times, when97+10)
 
