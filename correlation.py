@@ -129,7 +129,7 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
 		pred = [func(px, *popt) for px in xIn]
 		res.append((mean_absolute_percentage_error(yIn, pred), popt, pcov, ignore))
-	for i in res: print(i)
+	# for i in res: print(i)
 	val = res[res.index(min(res))]
 	return val[1], val[2]
 
@@ -148,9 +148,9 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
-finaldata = []; gooddata = []
+finaldata = []; gooddatar2 = []; gooddatam = []
 ignore = -1
-for country in ['Afghanistan']:
+for country in countries:
 	if country in insufficient:
 		continue
 	try:
@@ -233,8 +233,10 @@ for country in ['Afghanistan']:
 		values.extend(popt)
 		values.extend(indicatorData)
 		finaldata.append(values)
-		if mape < 40: 
-			gooddata.append(finaldata[-1])
+		if maxday2 >= maxday and when97 != 1000 and r2 >= 0.8: 
+			gooddatar2.append(finaldata[-1])
+		if maxday2 >= maxday and when97 != 1000 and mape <= 40: 
+			gooddatam.append(finaldata[-1])
 			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
 		print("----", country)
 	except Exception as e:
@@ -244,19 +246,24 @@ for country in ['Afghanistan']:
 
 params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
 df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE']+params+indicators)
-dfgood = pd.DataFrame(gooddata,columns=['Country', 'R2', 'MAPE']+params+indicators)
+dfgood = pd.DataFrame(gooddatar2,columns=['Country', 'R2', 'MAPE']+params+indicators)
+dfgoodm = pd.DataFrame(gooddatam,columns=['Country', 'R2', 'MAPE']+params+indicators)
 
 correlationdata = []
-goodcorrdata = []
+goodcorrdata = []; goodcorrdatam = []
 for i in indicators:
 	correlationdata.append([i] + [df[p].corr(df[i]) for p in params])
 	goodcorrdata.append([i] + [dfgood[p].corr(dfgood[i]) for p in params])
+	goodcorrdatam.append([i] + [dfgoodm[p].corr(dfgoodm[i]) for p in params])
 
 df2 = pd.DataFrame(correlationdata,columns=['Indicator']+params)
 df2good = pd.DataFrame(goodcorrdata,columns=['Indicator']+params)
+df2goodm = pd.DataFrame(goodcorrdatam,columns=['Indicator']+params)
 
 with pd.ExcelWriter('correlation.xlsx') as writer:  
     df.to_excel(writer, sheet_name='Raw Data')
     df2.to_excel(writer, sheet_name='Correlation Data')
-    dfgood.to_excel(writer, sheet_name='Raw Data >0.8')
-    df2good.to_excel(writer, sheet_name='Correlation Data >0.8')
+    dfgood.to_excel(writer, sheet_name='Raw Data R2>=0.8')
+    df2good.to_excel(writer, sheet_name='Correlation Data R2>=0.8')
+    dfgoodm.to_excel(writer, sheet_name='Raw Data MAPE<=40')
+    df2goodm.to_excel(writer, sheet_name='Correlation Data MAPE<=40')
