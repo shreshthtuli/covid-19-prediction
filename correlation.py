@@ -25,7 +25,7 @@ plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
 df = pd.read_csv('owid-covid-data.csv')
-df['Date'] = pd.to_datetime(df.Date)
+df['date'] = pd.to_datetime(df.date)
 
 dfHealth = pd.read_excel('datasets/world-health.xls')
 indicators = list(pd.unique(dfHealth['Indicator Name']))[7:]
@@ -38,7 +38,7 @@ dfStrains = pd.read_excel('datasets/strains.xlsx')
 strainTypes = ['O', 'B', 'B1', 'B2', 'B4', 'A3', 'A6', 'A7', 'A1a', 'A2', 'A2a']
 indicators.extend(strainTypes)
 
-countries = list(pd.unique(df['Country']))
+countries = list(pd.unique(df['location']))
 
 def gauss(x, mu, sigma, scale):
     return scale * np.exp(-1 * ((x - mu) ** 2) / (2 * (sigma ** 2) )) 
@@ -72,8 +72,8 @@ def getMetric(countryname, metricname):
 	return float(df3['2017'].values[0]) if len(df3['2017'].values) != 0 else 0
 
 def getInfoCountry(df2, isdead):
-	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
-	startDate = min(df2.Date)
+	df2['Delta'] = (df2.date - min(df2.date)).dt.days
+	startDate = min(df2.date)
 	totalLength = max(df2.Delta)
 	confirmed = []; new = []
 	for day in range(totalLength):
@@ -119,7 +119,7 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
 		outliersweight = None
 		for i in range(10):
-			popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=100000)
+			popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, absolute_sigma=True, maxfev=100000)
 			pred = np.array([func(px, *popt) for px in x])
 			old = outliersweight
 			outliersweight = np.abs(pred - y)
@@ -129,6 +129,7 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
 		pred = [func(px, *popt) for px in xIn]
 		res.append((mean_absolute_percentage_error(yIn, pred), popt, pcov, ignore))
+	for i in res: print(i)
 	val = res[res.index(min(res))]
 	return val[1], val[2]
 
@@ -149,15 +150,15 @@ def mean_absolute_percentage_error(y_true, y_pred):
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddata = []
 ignore = -1
-for country in countries:
+for country in ['Afghanistan']:
 	if country in insufficient:
 		continue
 	try:
 		dead = False
 		print("--", country)
-		df2 = df[df['Country'] == country]
+		df2 = df[df['location'] == country]
 		res = getInfoCountry(df2, False)
-		data = res[-1][:ignore]
+		data = res[-1]
 		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Iran', 'Israel', 'Oman']:
 			print('skip', country,)
 			continue
@@ -175,6 +176,7 @@ for country in countries:
 		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=100000)
 		whichFunc = 1
 		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		print(popt)
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
 
@@ -202,7 +204,7 @@ for country in countries:
 
 		dead = True
 		res = getInfoCountry(df2, True)
-		data = res[-1][:ignore]
+		data = res[-1]
 
 		xlim2 = max(len(data)*times, when97+10)
 
