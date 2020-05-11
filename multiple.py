@@ -38,19 +38,27 @@ dfStrains = pd.read_excel('datasets/strains.xlsx')
 strainTypes = ['O', 'B', 'B1', 'B2', 'B4', 'A3', 'A6', 'A7', 'A1a', 'A2', 'A2a']
 indicators.extend(strainTypes)
 
+regressionIndicators = ['Population, male (% of total population)', ' Population, male', \
+	'Population, female (% of total population)', 'Population, female', \
+	'Population, total', 'Population growth (annual %)', 'Age dependency ratio, young (% of working-age population)',\
+	'Age dependency ratio, old (% of working-age population)', 'Meat Consumption (kg/person)'\
+	'Average Yearly Temperature (C)'] + strainTypes
+
 countries = list(pd.unique(df['Country']))
 
 def gauss(x, mu, sigma, scale):
     return scale * np.exp(-1 * ((x - mu) ** 2) / (2 * (sigma ** 2) )) 
 
-def weib(x, k, a, b, g):
+def weib(x, *p):
+	l = len(regressionIndicators)+1
+	kl, al, gl, bl = p[0:l], p[l:2*l], p[2*l:3*l], p[3*l:]
+	k  = kl[0] + np.sum(kl[1:] * x[:,1:], axis=1)
+	a  = al[0] + np.sum(al[1:] * x[:,1:], axis=1)
+	g  = gl[0] + np.sum(gl[1:] * x[:,1:], axis=1)
+	b  = bl[0] + np.sum(bl[1:] * x[:,1:], axis=1)
+	# k = k.reshape(1,-1); a = a.reshape(1,-1); b = b.reshape(1,-1); g = g.reshape(1,-1)
+	x = x[:,0]
 	return k * g * b * (a ** b) * np.exp(-1 * g * ((a / x)  ** b)) / (x ** (b + 1))
-
-def beta(x, k, a, b, p, q):
-	return k * gamma(p + q) * ((x - a)** (p-1)) * (b-x)**(q-1) / (gamma(p) * gamma(q) * (b-a)**(p+q-1))
-
-def ft(x, k, e, d, o):
-	return k * np.exp(-1 * (1 + e * (x-o)) ** (-1 / (e + d)))
 
 def getMetric(countryname, metricname):
 	if metricname in strainTypes:
@@ -103,8 +111,9 @@ def calcWhen(func, popt, match, data):
 def iterativeCurveFit(func, x, y, start):
 	outliersweight = None
 	for i in range(10):
+		print(i)
 		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=100000)
-		pred = np.array([func(px, *popt) for px in x])
+		pred = np.array([func(np.array([px]), *popt) for px in x])
 		old = outliersweight
 		outliersweight = np.abs(pred - y)
 		outliersweight = 1 - np.tanh(outliersweight)
@@ -112,25 +121,6 @@ def iterativeCurveFit(func, x, y, start):
 		outliersweight = softmax(1 - outliersweight)
 		if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
 	return popt, pcov
-
-def seriesIterativeCurveFit(func, xIn, yIn, start):
-	res = []
-	for ignore in range(10, 0, -1):
-		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
-		outliersweight = None
-		for i in range(10):
-			popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=100000)
-			pred = np.array([func(px, *popt) for px in x])
-			old = outliersweight
-			outliersweight = np.abs(pred - y)
-			outliersweight = 1 - np.tanh(outliersweight)
-			outliersweight = outliersweight / np.max(outliersweight)
-			outliersweight = softmax(1 - outliersweight)
-			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
-		pred = [func(px, *popt) for px in xIn]
-		res.append((mean_absolute_percentage_error(yIn, pred), popt, pcov, ignore))
-	val = res[res.index(min(res))]
-	return val[1], val[2]
 
 def getMaxCases(y, data):
 	m = 0; dday = 0
@@ -146,9 +136,41 @@ def getMaxCases(y, data):
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
+def formData(countrylist):
+	x = []; y = []
+	for country in countrylist:
+		df2 = df[df['Country'] == country]
+		res = getInfoCountry(df2, False)
+		ycountry = res[-1]
+		xcountry = list(range(len(ycountry)))
+		metrics = [getMetric(country, i) for i in regressionIndicators]
+		x.extend([i]+metrics for i in xcountry)
+		y.extend(ycountry)
+	return x, y
+
+dataCountries = ['India']
+xComplete, yComplete = formData(dataCountries)
+
+# popt, pcov = iterativeCurveFit(weib, xComplete, yComplete, [0]*(len(regressionIndicators)+1)*4)
+popt, pcov = curve_fit(weib, xComplete, yComplete, ([10]+[1]*(len(regressionIndicators)))*4, maxfev=100000)
+
+for country in dataCountries:
+	x, data = formData([country])
+	pred = np.array([weib(np.array([px]), *popt) for px in x])
+	xlim = max(len(data)*3, 10)
+	plt.figure(figsize=(6,3))
+	plt.title(country)
+	_ = plt.bar(list(range(len(x))), data, width=1, edgecolor='black', linewidth=0.01, alpha=0.6, label='Actual Data (new)')
+	plt.plot(list(range(len(x))), pred, color='red', label='Robust Weibull Prediction (new)')
+	plt.legend()
+	plt.show()
+
+exit()
+
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddata = []
 ignore = -1
+
 for country in countries:
 	if country in insufficient:
 		continue
@@ -174,7 +196,7 @@ for country in countries:
 		if country == 'China': datacopy[datacopy == 15141] = 4000
 		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=100000)
 		whichFunc = 1
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
 
@@ -213,7 +235,7 @@ for country in countries:
 		datacopy = np.array(deepcopy(data[1:]))
 		poptold = popt
 		finalexpold = finalexp
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		maxcases2, maxday2 = getMaxCases(pred, data)
@@ -231,7 +253,7 @@ for country in countries:
 		values.extend(popt)
 		values.extend(indicatorData)
 		finaldata.append(values)
-		if mape < 40: 
+		if r2 >= 0.8: 
 			gooddata.append(finaldata[-1])
 			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
 		print("----", country)
