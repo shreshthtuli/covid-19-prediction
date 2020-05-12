@@ -25,4 +25,4 @@ author = "Shreshth Tuli and Shikhar Tuli and Rakesh Tuli and Sukhpal Singh Gill"
 ```
 
 ## References
-* **Shreshth Tuli, Shikhar Tuli, Rakesh Tuli and Sukhpal Singh Gill, [Predicting the Growth and Trend of COVID-19 Pandemic using Machine Learning and Cloud Computing.](https://www.sciencedirect.com/science/article/pii/S254266052030055X?via%3Dihub) Internet of Things, ISSN: 2542-6605, Elsevier Press, Amsterdam, The Netherlands, May 2020.** [Open access link](https://www.medrxiv.org/content/10.1101/2020.05.06.20091900v1)
+* **Shreshth Tuli, Shikhar Tuli, Rakesh Tuli and Sukhpal Singh Gill, [Predicting the Growth and Trend of COVID-19 Pandemic using Machine Learning and Cloud Computing.](https://www.sciencedirect.com/science/article/pii/S254266052030055X?via%3Dihub) Internet of Things, ISSN: 2542-6605, Elsevier Press, Amsterdam, The Netherlands, May 2020.** ([Open access link](https://www.medrxiv.org/content/10.1101/2020.05.06.20091900v1))
