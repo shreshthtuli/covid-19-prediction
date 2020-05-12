@@ -6,58 +6,6 @@ This study applies an improved mathematical model to analyse and predict the gro
 
 We use the <i>[Our World in Data](https://github.com/owid/covid-19-data/tree/master/public/data/)</i> dataset for predicting number of new cases and deaths in various countries.
 
-<div>
-    <a href="https://plotly.com/~shreshthtuli/6/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="India" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/6.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="India" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:6" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/4/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="World" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/4.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="World" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:4" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/5/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="United States" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/5.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="United States" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:5" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/7/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="United Kingdom" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/7.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="United Kingdom" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:7" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/8/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="China" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/8.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="China" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:8" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/9/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="Spain" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/9.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="Spain" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:9" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/10/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="Italy" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/10.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="Italy" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:10" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/11/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="France" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/11.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="France" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:11" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/12/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="Germany" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/12.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="Germany" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:12" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
-<div>
-    <a href="https://plotly.com/~shreshthtuli/13/?share_key=RaWuX710gE2BbdFGiA5WEc" target="_blank" title="Russia" style="display: block; text-align: center;"><img src="https://plotly.com/~shreshthtuli/13.png?share_key=RaWuX710gE2BbdFGiA5WEc" alt="Russia" style="max-width: 100%;width: 600px;"  width="600" onerror="this.onerror=null;this.src='https://plotly.com/404.png';" /></a>
-    <script data-plotly="shreshthtuli:13" sharekey-plotly="RaWuX710gE2BbdFGiA5WEc" src="https://plotly.com/embed.js" async></script>
-</div>
-
 ## Developer
 
 [Shreshth Tuli](https://www.github.com/shreshthtuli) (shreshthtuli@gmail.com)
