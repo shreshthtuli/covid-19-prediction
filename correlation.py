@@ -18,6 +18,7 @@ from scipy.special import softmax
 import warnings
 import os
 import math
+from scipy.stats import pearsonr
 
 warnings.simplefilter("ignore")
 
@@ -148,7 +149,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
-finaldata = []; gooddatar2 = []; gooddatam = []
+finaldata = []; gooddataNew = []; gooddataDead = []
 ignore = -1
 for country in countries:
 	if country in insufficient:
@@ -176,7 +177,6 @@ for country in countries:
 		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=100000)
 		whichFunc = 1
 		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
-		print(popt)
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
 
@@ -216,6 +216,9 @@ for country in countries:
 		poptold = popt
 		finalexpold = finalexp
 		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		y = [func[1][0](px, *popt) for px in x[1:]]
+		r2Dead = r2_score(data[1:], y)
+		mapeDead = mean_absolute_percentage_error(data[1:], y)
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		maxcases2, maxday2 = getMaxCases(pred, data)
@@ -227,17 +230,17 @@ for country in countries:
 		plt.savefig('graphs/'+'both'+'/'+country.replace(" ", "_")+'.pdf')
 
 		population = getMetric(country, 'Population, total')
-		values = [country, r2, mape, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
+		values = [country, r2, mape, r2Dead, mapeDead, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
 		indicatorData = [getMetric(country, i) for i in indicators]
 		values.extend(poptold)
 		values.extend(popt)
 		values.extend(indicatorData)
 		finaldata.append(values)
-		if maxday2 >= maxday and when97 != 1000 and r2 >= 0.8: 
-			gooddatar2.append(finaldata[-1])
-		if maxday2 >= maxday and when97 != 1000 and mape <= 40: 
-			gooddatam.append(finaldata[-1])
+		if maxday2 - maxday >= -10 and when97 != 1000 and r2 >= 0.8 and mape <= 46: 
+			gooddataNew.append(finaldata[-1])
 			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
+		if maxday2 - maxday >= -10 and when97 != 1000 and r2Dead >= 0.8 and mapeDead <= 47: 
+			gooddataDead.append(finaldata[-1])
 		print("----", country)
 	except Exception as e:
 		print(str(e))
@@ -245,25 +248,42 @@ for country in countries:
 		pass
 
 params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
-df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE']+params+indicators)
-dfgood = pd.DataFrame(gooddatar2,columns=['Country', 'R2', 'MAPE']+params+indicators)
-dfgoodm = pd.DataFrame(gooddatam,columns=['Country', 'R2', 'MAPE']+params+indicators)
+df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
+dfgood = pd.DataFrame(gooddataNew,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
+dfgoodm = pd.DataFrame(gooddataDead,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
 
-correlationdata = []
-goodcorrdata = []; goodcorrdatam = []
+df.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
+dfgood.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
+dfgoodm.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
+
+correlationdata = []; pdata  = []
+goodcorrdata = []; goodpdata = []
+goodcorrdatam = []; goodpdatam = []
 for i in indicators:
-	correlationdata.append([i] + [df[p].corr(df[i]) for p in params])
-	goodcorrdata.append([i] + [dfgood[p].corr(dfgood[i]) for p in params])
-	goodcorrdatam.append([i] + [dfgoodm[p].corr(dfgoodm[i]) for p in params])
+	result = [pearsonr(df[p],df[i]) for p in params]
+	correlationdata.append([i] + [res[0] for res in result])
+	pdata.append([i] + [res[1] for res in result])
+	result = [pearsonr(dfgood[p],dfgood[i]) for p in params]
+	goodcorrdata.append([i] + [res[0] for res in result])
+	goodpdata.append([i] + [res[1] for res in result])
+	result = [pearsonr(dfgoodm[p],dfgoodm[i]) for p in params]
+	goodcorrdatam.append([i] + [res[0] for res in result])
+	goodpdatam.append([i] + [res[1] for res in result])
 
 df2 = pd.DataFrame(correlationdata,columns=['Indicator']+params)
+df2p = pd.DataFrame(pdata,columns=['Indicator']+params)
 df2good = pd.DataFrame(goodcorrdata,columns=['Indicator']+params)
+df2goodp = pd.DataFrame(goodpdata,columns=['Indicator']+params)
 df2goodm = pd.DataFrame(goodcorrdatam,columns=['Indicator']+params)
+df2goodmp = pd.DataFrame(goodpdatam,columns=['Indicator']+params)
 
 with pd.ExcelWriter('correlation.xlsx') as writer:  
     df.to_excel(writer, sheet_name='Raw Data')
     df2.to_excel(writer, sheet_name='Correlation Data')
-    dfgood.to_excel(writer, sheet_name='Raw Data R2>=0.8')
-    df2good.to_excel(writer, sheet_name='Correlation Data R2>=0.8')
-    dfgoodm.to_excel(writer, sheet_name='Raw Data MAPE<=40')
-    df2goodm.to_excel(writer, sheet_name='Correlation Data MAPE<=40')
+    df2p.to_excel(writer, sheet_name='Significance (p value)')
+    dfgood.to_excel(writer, sheet_name='Raw Data (new cases)')
+    df2good.to_excel(writer, sheet_name='Correlation Data (new cases)')
+    df2goodp.to_excel(writer, sheet_name='Significance (p value) (new cases)')
+    dfgoodm.to_excel(writer, sheet_name='Raw Data (deaths)')
+    df2goodm.to_excel(writer, sheet_name='Correlation Data (deaths)')
+    df2goodmp.to_excel(writer, sheet_name='Significance (p value) (deaths)')
