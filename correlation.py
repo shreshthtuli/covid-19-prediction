@@ -32,12 +32,23 @@ dfHealth = pd.read_excel('datasets/world-health.xls')
 indicators = list(pd.unique(dfHealth['Indicator Name']))[7:]
 indicators.append('Meat Consumption (kg/person)')
 indicators.append('Average Yearly Temperature (C)')
+indicators.remove('Incidence of malaria (per 1,000 population at risk)')
 
 dfMeat = pd.read_excel('datasets/meat.xlsx')
 dfTemp = pd.read_excel('datasets/temp.xlsx')
 dfStrains = pd.read_excel('datasets/strains.xlsx')
+dfMalaria = pd.read_excel('datasets/malaria.xlsx')
+malariadata = ['Malaria Cases/1000', 'Malaria Deaths/1000']
+others = ['Consumption of iodized salt (% of households)', 'Prevalence of overweight, weight for height (% of children under 5)',\
+'Prevalence of underweight, weight for age (% of children under 5)', 'Vitamin A supplementation coverage rate (% of children ages 6-59 months) newdata',\
+'Immunization, DPT (% of children ages 12-23 months)', 'Immunization, measles (% of children ages 12-23 months)', \
+'Immunization, HepB3 (% of one-year-old children)', 'People using at least basic sanitation services (% of population)', \
+'People using safely managed drinking water services (% of population)', 'Tuberculosis treatment success rate (% of new cases)', \
+'Current health expenditure per capita (current US$)']
+others = [i+' newdata' for i in others]
+dfothers = [pd.read_excel('datasets/world-health2.xlsx', sheet_name='Sheet'+str(i)) for i in range(len(others))]
 strainTypes = ['O', 'B', 'B1', 'B2', 'B4', 'A3', 'A6', 'A7', 'A1a', 'A2', 'A2a']
-indicators.extend(strainTypes)
+indicators.extend(malariadata + others + strainTypes)
 
 countries = list(pd.unique(df['location']))
 
@@ -67,6 +78,15 @@ def getMetric(countryname, metricname):
 	if metricname == 'Average Yearly Temperature (C)':
 		df2 = dfTemp[dfTemp['Country'] == countryname]
 		temp = str(df2['temp'].values[0]) if len(df2['temp'].values) > 0 else 0
+		return float(temp)
+	if metricname in malariadata:
+		df2 = dfMalaria[dfMalaria['Country'] == countryname]
+		temp = str(df2[metricname].values[0]) if len(df2[metricname].values) > 0 else 0
+		return float(temp)
+	if metricname in others:
+		ddd = dfothers[others.index(metricname)]
+		df2 = ddd[ddd['Country'] == countryname]
+		temp = str(df2['Value'].values[0]) if len(df2['Value'].values) > 0 else 0
 		return float(temp)
 	df2 = dfHealth[dfHealth['Country Name'] == countryname]
 	df3 = df2[df2['Indicator Name'] == metricname]
@@ -251,6 +271,8 @@ params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop'
 df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
 dfgood = pd.DataFrame(gooddataNew,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
 dfgoodm = pd.DataFrame(gooddataDead,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
+
+# df.to_excel('test.xlsx')
 
 df.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
 dfgood.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
