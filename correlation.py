@@ -18,7 +18,7 @@ from scipy.special import softmax
 import warnings
 import os
 import math
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 
 warnings.simplefilter("ignore")
 
@@ -37,6 +37,7 @@ indicators.remove('Incidence of malaria (per 1,000 population at risk)')
 dfMeat = pd.read_excel('datasets/meat.xlsx')
 dfTemp = pd.read_excel('datasets/temp.xlsx')
 dfStrains = pd.read_excel('datasets/strains.xlsx')
+dfStrains2 = pd.read_excel('datasets/strains2.xlsx')
 dfMalaria = pd.read_excel('datasets/malaria.xlsx')
 malariadata = ['Malaria Cases/1000', 'Malaria Deaths/1000']
 others = ['Consumption of iodized salt (% of households)', 'Prevalence of overweight, weight for height (% of children under 5)',\
@@ -48,7 +49,8 @@ others = ['Consumption of iodized salt (% of households)', 'Prevalence of overwe
 others = [i+' newdata' for i in others]
 dfothers = [pd.read_excel('datasets/world-health2.xlsx', sheet_name='Sheet'+str(i)) for i in range(len(others))]
 strainTypes = ['O', 'B', 'B1', 'B2', 'B4', 'A3', 'A6', 'A7', 'A1a', 'A2', 'A2a']
-indicators.extend(malariadata + others + strainTypes)
+strainTypes2 = ['Cluster '+str(i) for i in range(9)]
+indicators.extend(malariadata + others + strainTypes + strainTypes2)
 
 countries = list(pd.unique(df['location']))
 
@@ -65,8 +67,11 @@ def ft(x, k, e, d, o):
 	return k * np.exp(-1 * (1 + e * (x-o)) ** (-1 / (e + d)))
 
 def getMetric(countryname, metricname):
-	if metricname in strainTypes:
-		df2 = dfStrains[dfStrains['Country'] == countryname]
+	if metricname in strainTypes+strainTypes2:
+		if metricname in strainTypes:
+			df2 = dfStrains[dfStrains['Country'] == countryname]
+		else:
+			df2 = dfStrains2[dfStrains['Country'] == countryname]
 		if len(df2[metricname].values) == 0: val = 1
 		else: val = float(df2[metricname].values[0])+1 if not math.isnan(df2[metricname]) else 1
 		if len(df2['Total'].values) == 0: tot = len(strainTypes)
@@ -136,7 +141,7 @@ def iterativeCurveFit(func, x, y, start):
 
 def seriesIterativeCurveFit(func, xIn, yIn, start):
 	res = []
-	for ignore in range(10, 0, -1):
+	for ignore in range(15, 0, -1):
 		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
 		outliersweight = None
 		for i in range(10):
@@ -157,10 +162,10 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 def getMaxCases(y, data):
 	m = 0; dday = 0
 	for day,cases in enumerate(y):
-		if day < len(data):
-			if data[day] > m:
-				m = data[day]; dday = day
-		else:
+		# if day < len(data):
+		# 	if data[day] > m:
+		# 		m = data[day]; dday = day
+		# else:
 			if cases > m:
 				m = cases; dday = day
 	return m, dday
@@ -192,7 +197,7 @@ for country in countries:
 		times = 2; skip = 30
 		plt.figure(figsize=(6,3))
 		x = list(range(len(data)))
-		datacopy = np.array(deepcopy(data[1:]))
+		datacopy = np.absolute(np.array(deepcopy(data[1:])))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
 		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=100000)
 		whichFunc = 1
@@ -232,10 +237,10 @@ for country in countries:
 		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%d %b %y") for i in range(0,xlim,skip)], rotation=45, ha='right')
 		plt.twinx()
 
-		datacopy = np.array(deepcopy(data[1:]))
+		datacopy = np.absolute(np.array(deepcopy(data[1:])))
 		poptold = popt
 		finalexpold = finalexp
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, [2000, 54, 4, 500])
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		r2Dead = r2_score(data[1:], y)
 		mapeDead = mean_absolute_percentage_error(data[1:], y)
@@ -256,10 +261,10 @@ for country in countries:
 		values.extend(popt)
 		values.extend(indicatorData)
 		finaldata.append(values)
-		if maxday2 - maxday >= -10 and when97 != 1000 and r2 >= 0.8 and mape <= 46: 
+		if maxday2 - maxday >= -10 and r2 >= 0.8 and mape <= 46: 
 			gooddataNew.append(finaldata[-1])
 			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
-		if maxday2 - maxday >= -10 and when97 != 1000 and r2Dead >= 0.8 and mapeDead <= 47: 
+		if maxday2 - maxday >= -10 and r2Dead >= 0.8 and mapeDead <= 47: 
 			gooddataDead.append(finaldata[-1])
 		print("----", country)
 	except Exception as e:
@@ -272,7 +277,12 @@ df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE
 dfgood = pd.DataFrame(gooddataNew,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
 dfgoodm = pd.DataFrame(gooddataDead,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
 
-# df.to_excel('test.xlsx')
+# params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
+# df = pd.read_excel('results/correlation.xlsx', sheet_name='Raw Data')
+# dfgood = pd.read_excel('results/correlation.xlsx', sheet_name='Raw Data (new cases)')
+# dfgoodm = pd.read_excel('results/correlation.xlsx', sheet_name='Raw Data (deaths)')
+
+corrfunc = spearmanr
 
 df.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
 dfgood.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
@@ -282,13 +292,13 @@ correlationdata = []; pdata  = []
 goodcorrdata = []; goodpdata = []
 goodcorrdatam = []; goodpdatam = []
 for i in indicators:
-	result = [pearsonr(df[p],df[i]) for p in params]
+	result = [corrfunc(df[p],df[i]) for p in params]
 	correlationdata.append([i] + [res[0] for res in result])
 	pdata.append([i] + [res[1] for res in result])
-	result = [pearsonr(dfgood[p],dfgood[i]) for p in params]
+	result = [corrfunc(dfgood[p],dfgood[i]) for p in params]
 	goodcorrdata.append([i] + [res[0] for res in result])
 	goodpdata.append([i] + [res[1] for res in result])
-	result = [pearsonr(dfgoodm[p],dfgoodm[i]) for p in params]
+	result = [corrfunc(dfgoodm[p],dfgoodm[i]) for p in params]
 	goodcorrdatam.append([i] + [res[0] for res in result])
 	goodpdatam.append([i] + [res[1] for res in result])
 
