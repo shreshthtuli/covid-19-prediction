@@ -5,8 +5,6 @@ from scipy.optimize import curve_fit
 from scipy import stats
 from sklearn.metrics import mean_squared_error
 import numpy as np
-import torch
-import torch.nn as nn
 from copy import deepcopy
 from numpy import inf
 from math import exp, gamma
