@@ -8,7 +8,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 from copy import deepcopy
-import torch.nn.functional as F
 from numpy import inf
 from math import exp, gamma
 from datetime import timedelta
@@ -175,7 +174,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
 
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddataNew = []; gooddataDead = []
-ignore = -1
+ignore = -1; training_data = -5
 for country in countries:
 	if country in insufficient:
 		continue
@@ -197,11 +196,11 @@ for country in countries:
 		times = 2; skip = 30
 		plt.figure(figsize=(6,3))
 		x = list(range(len(data)))
-		datacopy = np.absolute(np.array(deepcopy(data[1:])))
+		datacopy = np.absolute(np.array(deepcopy(data[1:training_data])))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
-		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=100000)
+		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:training_data], datacopy, func[whichFunc][1], maxfev=100000)
 		whichFunc = 1
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
 
@@ -237,13 +236,13 @@ for country in countries:
 		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%d %b %y") for i in range(0,xlim,skip)], rotation=45, ha='right')
 		plt.twinx()
 
-		datacopy = np.absolute(np.array(deepcopy(data[1:])))
+		datacopy = np.absolute(np.array(deepcopy(data[1:training_data])))
 		poptold = popt
 		finalexpold = finalexp
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:], datacopy, [2000, 54, 4, 500])
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [2000, 54, 4, 500])
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		r2Dead = r2_score(data[1:], y)
-		mapeDead = mean_absolute_percentage_error(data[1:], y)
+		mapeDead = mean_absolute_percentage_error(data[1:training_data], y[:training_data])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		maxcases2, maxday2 = getMaxCases(pred, data)
@@ -261,12 +260,11 @@ for country in countries:
 		values.extend(popt)
 		values.extend(indicatorData)
 		finaldata.append(values)
-		if maxday2 - maxday >= -10 and r2 >= 0.8 and mape <= 46: 
+		if maxday2 - maxday >= -10 and mape <= 46: 
 			gooddataNew.append(finaldata[-1])
 			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
-		if maxday2 - maxday >= -10 and r2Dead >= 0.8 and mapeDead <= 47: 
+		if maxday2 - maxday >= -10 and mapeDead <= 47: 
 			gooddataDead.append(finaldata[-1])
-		print("----", country)
 	except Exception as e:
 		print(str(e))
 		# raise(e)
@@ -282,7 +280,7 @@ dfgoodm = pd.DataFrame(gooddataDead,columns=['Country', 'R2', 'MAPE', 'R2 Deaths
 # dfgood = pd.read_excel('results/correlation.xlsx', sheet_name='Raw Data (new cases)')
 # dfgoodm = pd.read_excel('results/correlation.xlsx', sheet_name='Raw Data (deaths)')
 
-corrfunc = spearmanr
+corrfunc = pearsonr
 
 df.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
 dfgood.replace([np.inf, -np.inf, np.nan, ''], 0, inplace=True)
