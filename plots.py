@@ -23,52 +23,22 @@ plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
 df = pd.read_csv('owid-covid-data.csv')
-df['Date'] = pd.to_datetime(df.Date)
+df['date'] = pd.to_datetime(df.date)
 
-countries = list(pd.unique(df['Country']))
-
-def gauss(x, mu, sigma, scale):
-    return scale * np.exp(-1 * ((x - mu) ** 2) / (2 * (sigma ** 2) )) 
+countries = list(pd.unique(df['location']))
 
 def weib(x, k, a, b, g):
 	return k * g * b * (a ** b) * np.exp(-1 * g * ((a / x)  ** b)) / (x ** (b + 1))
 
-def getInfos(df2):
-	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
-	startDate = min(df2.Date)
-	totalLength = max(df2.Delta)
-	confirmed = []; new = []
-	for day in range(totalLength):
-		if not df2.Confirmed[df2.Delta == day].empty:
-			lastconfirmed = int(sum(df2.Confirmed[df2.Delta == day]))  
-		else:
-			confirmed[-1] if confirmed != [] else 0
-		confirmed.append(lastconfirmed)
-		new.append(confirmed[-1] - (confirmed[-2] if len(confirmed) > 1 else 0))
-	return startDate, totalLength, confirmed, new
-
 def getInfoCountry(df2, isdead):
-	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
-	startDate = min(df2.Date)
+	df2['Delta'] = (df2.date - min(df2.date)).dt.days
+	startDate = min(df2.date)
 	totalLength = max(df2.Delta)
 	confirmed = []; new = []
 	for day in range(totalLength):
 		newc = max(0, int(sum(df2.new_cases[df2.Delta == day] if not isdead else df2.new_deaths[df2.Delta == day])))
 		new.append(newc)
 		confirmed.append(new[-1] + (confirmed[-1] if len(confirmed) > 1 else 0))
-	return startDate, totalLength, confirmed, new
-
-def getSars():
-	df = pd.read_csv('datasets/sars_2003_complete_dataset_clean.csv')
-	df['Date'] = pd.to_datetime(df.Date)
-	df2['Delta'] = (df2.Date - min(df2.Date)).dt.days
-	startDate = min(df2.Date)
-	totalLength = max(df2.Delta)
-	confirmed = []; new = []
-	for day in range(totalLength):
-		conf = int(sum(df2.confirmed[df2.Delta == day]))  
-		confirmed.append(newc)
-		new.append(confirmed[-1] - (confirmed[-2] if len(confirmed) > 0 else 0))
 	return startDate, totalLength, confirmed, new
 
 def totalExpected(func, popt, data):
@@ -91,15 +61,36 @@ def calcWhen(func, popt, match, data):
 
 def iterativeCurveFit(func, x, y, start):
 	outliersweight = None
-	for i in range(100):
-		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=10000)
+	for i in range(10):
+		popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, maxfev=100000)
 		pred = np.array([func(px, *popt) for px in x])
+		old = outliersweight
 		outliersweight = np.abs(pred - y)
 		outliersweight = 1 - np.tanh(outliersweight)
 		outliersweight = outliersweight / np.max(outliersweight)
 		outliersweight = softmax(1 - outliersweight)
-		# print(outliersweight)
+		if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
 	return popt, pcov
+
+def seriesIterativeCurveFit(func, xIn, yIn, start):
+	res = []
+	for ignore in range(15, 0, -1):
+		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
+		outliersweight = None
+		for i in range(10):
+			popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, absolute_sigma=True, maxfev=100000)
+			pred = np.array([func(px, *popt) for px in x])
+			old = outliersweight
+			outliersweight = np.abs(pred - y)
+			outliersweight = 1 - np.tanh(outliersweight)
+			outliersweight = outliersweight / np.max(outliersweight)
+			outliersweight = softmax(1 - outliersweight)
+			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
+		pred = [func(px, *popt) for px in xIn]
+		res.append((mean_absolute_percentage_error(yIn, pred), popt, pcov, ignore))
+	# for i in res: print(i)
+	val = res[res.index(min(res))]
+	return val[1], val[2]
 
 def getMaxCases(y, data):
 	m = 0; dday = 0
@@ -115,90 +106,81 @@ def getMaxCases(y, data):
 def mean_absolute_percentage_error(y_true, y_pred): 
     return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
+def getcummulative(l):
+	res = []; s = 0
+	for i in l:
+		s += i; res.append(s)
+	return res
+
 dead = False
 finaldata = []
 dfPlot = pd.DataFrame()
+training_data = -1
 interactive = ['India', 'World', 'United States', 'United Kingdom', 'China', 'Spain', 'Italy', 'France', 'Germany', 'Russia']
 for country in interactive:
-	# if os.path.exists('graphs/'+country+'.pdf'): continue
 	try:
+		dead = False
 		print("--", country)
-		df2 = df[df['Country'] == country]
-		res = getInfoCountry(df2, dead)
+		df2 = df[df['location'] == country]
+		res = getInfoCountry(df2, False)
 		data = res[-1]
+		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Iran', 'Israel', 'Oman']:
+			print('skip', country,)
+			continue
 		days = res[1]
 		start = res[0]
 
-		func = [(gauss, [0, 20, 100]), (weib, [30000, 14, 4, 500])]
+		func = [(weib, [0, 20, 100]), (weib, [60000, 14, 4, 500]), (weib, [7000, 0.5, 0.001, 100])]
 
-		whichFunc = 0
-		times = 2
-		plt.figure(figsize=(6,3))
-		plt.title(country)
-		x = list(range(len(data)))
-		datacopy = np.array(deepcopy(data[1:]))
-		if country == 'China': datacopy[datacopy == 15141] = 4000
-		poptg, pcovg = curve_fit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1], maxfev=10000)
 		whichFunc = 1
-		popt, pcov = iterativeCurveFit(func[whichFunc][0], x[1:], datacopy, func[whichFunc][1])
+		times = 2; skip = 30
+		datacopy = deepcopy(data[1:training_data]); x = list(range(len(data)))
+		if country == 'China': datacopy[datacopy == 15141] = 4000
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
-		# finaldayg, finalexpg = totalExpected(func[0][0], poptg, data)
-		# when97g = calcWhen(func[0][0], poptg, 0.97 * finalexpg, data)
 
+		when97 = 1000 if when97 > 1000 else when97
 		xlim = max(len(data)*times, when97+10)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
 
-		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction')
-		plt.plot(list(range(xlim))[1:], [func[0][0](px, *poptg) for px in list(range(xlim))[1:]], '--', color='green', label='Gaussian Prediction')
-		print("MSE ", "{:e}".format(mean_squared_error(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
-		print("R2 ", "{:e}".format(r2_score(data[1:], [func[whichFunc][0](px, *popt) for px in x[1:]])))
-		print("97 day", start + timedelta(days=when97))
-		print("final day", start + timedelta(days=finalday))
-		print("total cases", finalexp)
-		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.8, label='Actual Data')
-		dt = list(df2.Date)
-		skip = 30
-
 		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
-		y[y == inf] = 0; y[y == -inf] = 0
-		y = np.array(np.real(y))
-		y = np.nan_to_num(y)
-		y = np.array(y, dtype='float64')
+		maxcases, maxday = getMaxCases(y, data)
+		newpredsave = deepcopy(y)
+		newsave = deepcopy(data)
+		cumpredsave = getcummulative(y)
 
-		newdf = pd.DataFrame.from_dict({country+'-pred': y, country+'-dates':[(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))], country+'-true': data[1:]}, orient='index').T
+		dead = True
+		res = getInfoCountry(df2, True)
+		data = res[-1]
+		deadsave = deepcopy(data)
+
+		xlim2 = max(len(data)*times, when97+10)
+		xlim = max(xlim, xlim2)
+
+		datacopy = np.absolute(np.array(deepcopy(data[1:training_data])))
+		poptold = popt
+		finalexpold = finalexp
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [2000, 54, 4, 500])
+		y = [func[1][0](px, *popt) for px in x[1:]]
+		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
+		deadpredsave = deepcopy(pred)
+
+		newdf = pd.DataFrame.from_dict({country+'-pred': newpredsave, \
+			country+'-dates':[(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))], \
+			country+'-true': newsave,\
+			country+'-cum': cumpredsave,\
+			country+'-predd': deadpredsave,\
+			country+'-trued': deadsave}, orient='index').T
 		dfPlot[country+'-pred'] = pd.Series(newdf[country+'-pred'])
 		dfPlot[country+'-dates'] = pd.Series(newdf[country+'-dates'])
 		dfPlot[country+'-true'] = pd.Series(newdf[country+'-true'])
-
-		# Metrics
-		y = [func[1][0](px, *popt) for px in x[1:]]
-		mse = "{:e}".format(mean_squared_error(data[1:], y))
-		mape = "{:e}".format(mean_absolute_percentage_error(data[1:], y))
-		mseg = "{:e}".format(mean_squared_error(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
-		mapeg = "{:e}".format(mean_absolute_percentage_error(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
-		r2 = "{:e}".format(r2_score(data[1:], y))
-		r2g = "{:e}".format(r2_score(data[1:], [func[0][0](px, *poptg) for px in x[1:]]))
-		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
-		maxcases, maxday = getMaxCases(y, data)
-		print(mape, mapeg)
-		finaldata.append([country, finalexp, start + timedelta(days=finalday), start + timedelta(days=when97), maxcases, start + timedelta(days=maxday), mse, mseg, r2, r2g, mape, mapeg])
-		plt.xticks(list(range(0,xlim,30)), [(start+timedelta(days=i)).strftime("%b %d") for i in range(0,xlim,skip)], rotation=45, ha='right')
-		style = dict( arrowstyle = "-" ,  connectionstyle = "angle", ls =  'dashed')
-		what = 'deaths' if dead else 'cases'
-		text = plt.annotate('97\% of Total\nPredicted '+what+'\non '+(start+timedelta(days=when97)).strftime("%d %b %Y"), xy = ( when97 , 0 ), size='x-small', ha='center', xytext=( when97 , 3*func[whichFunc][0](when97, *popt)), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
-		text.set_fontsize(10)
-		# text2 = plt.annotate('(Gaussian)\n97\% of Total\nPredicted '+what+'\non '+(start+timedelta(days=when97g)).strftime("%d %b %Y"), xy = ( when97g , 0 ), size='x-small', ha='center', xytext=( when97g , 3*func[whichFunc][0](when97, *popt)+4000), bbox=dict(boxstyle='round', facecolor='white', alpha=0.25), xycoords = 'data' , textcoords = 'data' , fontSize = 16 , arrowprops = style ) 
-		# text2.set_fontsize(10)
-		plt.ylabel("New Cases")
-		plt.xlabel("Date")
-		plt.legend()
-		plt.tight_layout()
-		# plt.savefig('graphs/'+('dead/' if dead else 'newcases/')+country.replace(" ", "_")+'.pdf')
-		print(country)
+		dfPlot[country+'-cum'] = pd.Series(newdf[country+'-cum'])
+		dfPlot[country+'-predd'] = pd.Series(newdf[country+'-predd'])
+		dfPlot[country+'-trued'] = pd.Series(newdf[country+'-trued'])
 	except Exception as e:
 		print(str(e))
-		raise(e)
+		# raise(e)
 		pass
 
 
