@@ -115,6 +115,7 @@ def getcummulative(l):
 dead = False
 finaldata = []
 dfPlot = pd.DataFrame()
+dfcPlot = pd.DataFrame()
 training_data = -1
 interactive = ['India', 'World', 'United States', 'United Kingdom', 'China', 'Spain', 'Italy', 'France', 'Germany', 'Russia']
 for country in interactive:
@@ -149,6 +150,7 @@ for country in interactive:
 		newpredsave = deepcopy(y)
 		newsave = deepcopy(data)
 		cumpredsave = getcummulative(y)
+		cumsave = getcummulative(data)
 
 		dead = True
 		res = getInfoCountry(df2, True)
@@ -166,6 +168,8 @@ for country in interactive:
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		deadpredsave = deepcopy(pred)
 
+		cumdpredsave = getcummulative(deadpredsave)
+		cumdsave = getcummulative(deadsave)
 		newdf = pd.DataFrame.from_dict({country+'-pred': newpredsave, \
 			country+'-dates':[(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))], \
 			country+'-true': newsave,\
@@ -178,6 +182,16 @@ for country in interactive:
 		dfPlot[country+'-cum'] = pd.Series(newdf[country+'-cum'])
 		dfPlot[country+'-predd'] = pd.Series(newdf[country+'-predd'])
 		dfPlot[country+'-trued'] = pd.Series(newdf[country+'-trued'])
+		newcdf = pd.DataFrame.from_dict({country+'-dates':[(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))], \
+			country+'-cpred': cumpredsave, \
+			country+'-ctrue': cumsave,\
+			country+'-cpredd': cumdpredsave,\
+			country+'-ctrued': cumdsave}, orient='index').T
+		dfcPlot[country+'-dates'] = pd.Series(newcdf[country+'-dates'])
+		dfcPlot[country+'-pred'] = pd.Series(newcdf[country+'-cpred'])
+		dfcPlot[country+'-true'] = pd.Series(newcdf[country+'-ctrue'])
+		dfcPlot[country+'-cpredd'] = pd.Series(newcdf[country+'-cpredd'])
+		dfcPlot[country+'-ctrued'] = pd.Series(newcdf[country+'-ctrued'])
 	except Exception as e:
 		print(str(e))
 		# raise(e)
@@ -185,3 +199,4 @@ for country in interactive:
 
 
 dfPlot.to_excel('plot.xlsx')
+dfcPlot.to_excel('cplot.xlsx')
