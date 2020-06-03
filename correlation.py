@@ -114,6 +114,14 @@ def totalExpected(func, popt, data):
 		if day > len(data) and today <= 1: break
 	return day, total
 
+def totalExpectedJune30(func, popt, data):
+	total = 0; day = 1
+	for _ in range(181):
+		today = func(day, *popt) if day >= len(data) else data[day]
+		total += today
+		day += 1
+	return total
+
 def calcWhen(func, popt, match, data):
 	total = 0; day = 1
 	while True:
@@ -201,6 +209,7 @@ for country in countries:
 		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, func[whichFunc][1])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
+		j30 = totalExpectedJune30(func[whichFunc][0], popt, data)
 
 		when97 = 1000 if when97 > 1000 else when97
 		xlim = max(len(data)*times, when97+10)
@@ -208,12 +217,13 @@ for country in countries:
 
 		plt.plot(list(range(xlim))[1:], pred, color='red', label='Robust Weibull Prediction (new)')
 		_ = plt.bar(x, data, width=1, edgecolor='black', linewidth=0.01, alpha=0.2, label='Actual Data (new)')
-		plt.ylabel("Number of cases"); plt.xlabel("Date"); plt.tight_layout(); 
+		plt.ylabel("Number of daily new cases"); plt.xlabel("Date"); plt.tight_layout(); 
 		plt.legend(loc='best');	plt.title(country)
 
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		r2 = r2_score(data[1:], y)
 		mape = mean_absolute_percentage_error(data[1:], y)
+		mape_error_new = mean_absolute_percentage_error(data[1:training_data], y[:training_data])
 
 		print("MSE ", "{:e}".format(mean_squared_error(data[1:], y)))
 		print("R2 ", r2)
@@ -236,23 +246,26 @@ for country in countries:
 
 		datacopy = np.absolute(np.array(deepcopy(data[1:training_data])))
 		poptold = popt
-		finalexpold = finalexp
+		finalexpold = finalexp; when97old = when97; j30old = j30
 		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [2000, 54, 4, 500])
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		r2Dead = r2_score(data[1:], y)
 		mapeDead = mean_absolute_percentage_error(data[1:training_data], y[:training_data])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
+		mape_error_dead = mean_absolute_percentage_error(data[1:training_data], y[:training_data])
+		when97 = calcWhen(func[whichFunc][0], popt, 0.97 * finalexp, data)
+		j30 = totalExpectedJune30(func[whichFunc][0], popt, data)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		maxcases2, maxday2 = getMaxCases(pred, data)
 		plt.plot(list(range(xlim2))[1:], pred, color='purple', label='Robust Weibull Prediction (dead)')
 		_ = plt.bar(x, data, width=1, color='green', edgecolor='black', linewidth=0.01, alpha=0.2, label='Actual Data (dead)')
 		plt.legend(loc=7)
-		plt.ylabel("Number of deaths")
+		plt.ylabel("Number of daily deaths")
 
 		plt.savefig('graphs/'+'both'+'/'+country.replace(" ", "_")+'.pdf')
 
 		population = getMetric(country, 'Population, total')
-		values = [country, r2, mape, r2Dead, mapeDead, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
+		values = [country, r2, mape, r2Dead, mapeDead, (start + timedelta(days=when97old)).strftime("%d %b %y"), (start + timedelta(days=when97)).strftime("%d %b %y"), j30old, j30, mape_error_new, mape_error_dead, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
 		indicatorData = [getMetric(country, i) for i in indicators]
 		values.extend(poptold)
 		values.extend(popt)
@@ -260,8 +273,8 @@ for country in countries:
 		finaldata.append(values)
 		if maxday2 - maxday >= -10 and mape <= 46: 
 			gooddataNew.append(finaldata[-1])
-			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
 		if maxday2 - maxday >= -10 and mapeDead <= 47: 
+			plt.savefig('graphs/'+'good'+'/'+country.replace(" ", "_")+'.pdf')
 			gooddataDead.append(finaldata[-1])
 	except Exception as e:
 		print(str(e))
@@ -269,9 +282,9 @@ for country in countries:
 		pass
 
 params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
-df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
-dfgood = pd.DataFrame(gooddataNew,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
-dfgoodm = pd.DataFrame(gooddataDead,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params+indicators)
+df = pd.DataFrame(finaldata,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths', '97 Cases', '97 Deaths', 'June 30 Cases', 'June 30 Deaths', 'MAPE Prediction (new) May 19 to May 29', 'MAPE Prediction (deaths) May 19 to May 29']+params+indicators)
+dfgood = pd.DataFrame(gooddataNew,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths', '97 Cases', '97 Deaths', 'June 30 Cases', 'June 30 Deaths', 'MAPE Prediction (new) May 19 to May 29', 'MAPE Prediction (deaths) May 19 to May 29']+params+indicators)
+dfgoodm = pd.DataFrame(gooddataDead,columns=['Country', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths', '97 Cases', '97 Deaths', 'June 30 Cases', 'June 30 Deaths', 'MAPE Prediction (new) May 19 to May 29', 'MAPE Prediction (deaths) May 19 to May 29']+params+indicators)
 
 # params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality', 'k new', 'a new', 'b new', 'g new', 'k dead', 'a dead', 'b dead', 'g dead']
 # df = pd.read_excel('results/correlation.xlsx', sheet_name='Raw Data')
