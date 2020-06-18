@@ -16,13 +16,19 @@ from sklearn.metrics import r2_score
 from scipy.special import softmax
 import warnings
 import os
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+from plotly.graph_objects import Layout
 
 warnings.simplefilter("ignore")
 
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
-df = pd.read_csv('owid-covid-data.csv')
+filename = 'owid-covid-data.csv'
+if not os.path.exists(filename): filename = 'owid-covid-data-bak.csv'
+df = pd.read_csv(filename)
 df['date'] = pd.to_datetime(df.date)
 
 countries = list(pd.unique(df['location']))
@@ -117,7 +123,7 @@ finaldata = []
 dfPlot = pd.DataFrame()
 dfcPlot = pd.DataFrame()
 training_data = -1
-interactive = ['India', 'World', 'United States', 'United Kingdom', 'China', 'Spain', 'Italy', 'France', 'Germany', 'Russia']
+interactive = ['India', 'World', 'United States', 'United Kingdom', 'Spain', 'Italy', 'France', 'Germany', 'Russia']
 for country in interactive:
 	try:
 		dead = False
@@ -192,11 +198,58 @@ for country in interactive:
 		dfcPlot[country+'-true'] = pd.Series(newcdf[country+'-ctrue'])
 		dfcPlot[country+'-cpredd'] = pd.Series(newcdf[country+'-cpredd'])
 		dfcPlot[country+'-ctrued'] = pd.Series(newcdf[country+'-ctrued'])
+		dates = [(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))]
+		fig = make_subplots(specs=[[{"secondary_y": True}]])
+		fig.add_trace(go.Scatter(x=dates, y=newpredsave, name="Prediction (new cases)", marker=dict(color='#EB752C')))
+		fig.add_trace(go.Bar(x=dates, y=newsave, name="True data (new cases)", marker=dict(color='rgba(235,117,44,0.7)')))
+		fig.add_trace(go.Scatter(x=dates, y=deadpredsave, name="Prediction (deaths)", marker=dict(color='#2D58BE')), secondary_y=True)
+		fig.add_trace(go.Bar(x=dates, y=deadsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
+		fig.update_layout(hovermode="x",
+			title=country.capitalize(),
+			title_x=0.5,
+			title_font=dict(size=20),
+			xaxis_title='Date',
+			font=dict(family='Overpass', size=12, color='#212121'),
+			yaxis_tickformat = ',.0f',
+			xaxis = dict(dtick = 30),
+			autosize=False,
+		    width=700,
+		    height=500,
+		    legend=dict(x=0.6, y=0.9, bordercolor='Black', borderwidth=1),
+		    plot_bgcolor='rgba(0,0,0,0)',
+			)
+		fig.update_yaxes(title_text="Number of daily new cases", gridcolor='lightgray', showline=True, linewidth=3, linecolor='orange', gridwidth=1, secondary_y=False,)
+		fig.update_yaxes(tickformat = ',.0f',title_text="Number of daily deaths", secondary_y=True, gridcolor='lightgray', showline=True, linewidth=3, linecolor='blue', gridwidth=1)
+		fig.write_html("plots/"+country+"_pred"+".html")
+		####
+		fig = make_subplots(specs=[[{"secondary_y": True}]])
+		fig.add_trace(go.Scatter(x=dates, y=cumpredsave, name="Prediction (new cases)", marker=dict(color='#EB752C')))
+		fig.add_trace(go.Bar(x=dates, y=cumsave, name="True data (new cases)", marker=dict(color='rgba(235,117,44,0.7)')))
+		fig.add_trace(go.Scatter(x=dates, y=cumdpredsave, name="Prediction (deaths)", marker=dict(color='#2D58BE')), secondary_y=True)
+		fig.add_trace(go.Bar(x=dates, y=cumdsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
+		fig.update_layout(hovermode="x",
+			title=country.capitalize(),
+			title_x=0.5,
+			title_font=dict(size=20),
+			xaxis_title='Date',
+			font=dict(family='Overpass', size=12, color='#212121'),
+			yaxis_tickformat = ',.0f',
+			xaxis = dict(dtick = 30),
+			autosize=False,
+		    width=700,
+		    height=500,
+		    legend=dict(x=0.6, y=0.3, bordercolor='Black', borderwidth=1),
+		    plot_bgcolor='rgba(0,0,0,0)',
+			)
+		fig.update_yaxes(title_text="Number of total cases", gridcolor='lightgray', showline=True, linewidth=3, linecolor='orange', gridwidth=1, secondary_y=False,)
+		fig.update_yaxes(tickformat = ',.0f',title_text="Number of total deaths", secondary_y=True, gridcolor='lightgray', showline=True, linewidth=3, linecolor='blue', gridwidth=1)
+		fig.write_html("plots/"+country+"_total"+".html")
+		fig.data = []
 	except Exception as e:
 		print(str(e))
-		# raise(e)
+		raise(e)
 		pass
 
 
-dfPlot.to_excel('plot.xlsx')
-dfcPlot.to_excel('cplot.xlsx')
+# dfPlot.to_excel('plot.xlsx')
+# dfcPlot.to_excel('cplot.xlsx')
