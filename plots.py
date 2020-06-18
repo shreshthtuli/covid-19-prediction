@@ -26,6 +26,11 @@ warnings.simplefilter("ignore")
 plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
+try:
+    os.makedir('plots')
+except OSError as e:
+	pass
+
 filename = 'owid-covid-data.csv'
 if not os.path.exists(filename): filename = 'owid-covid-data-bak.csv'
 df = pd.read_csv(filename)
