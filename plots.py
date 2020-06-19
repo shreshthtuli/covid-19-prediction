@@ -27,7 +27,7 @@ plt.style.use(['science'])
 plt.rcParams["text.usetex"] = True
 
 try:
-    os.makedir('plots')
+    os.makedirs('plots')
 except OSError as e:
 	pass
 
