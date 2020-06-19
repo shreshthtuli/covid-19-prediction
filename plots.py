@@ -252,7 +252,7 @@ for country in interactive:
 		fig.data = []
 	except Exception as e:
 		print(str(e))
-		raise(e)
+		# raise(e)
 		pass
 
 
