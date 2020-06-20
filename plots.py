@@ -128,7 +128,7 @@ finaldata = []
 dfPlot = pd.DataFrame()
 dfcPlot = pd.DataFrame()
 training_data = -1
-interactive = ['India', 'World', 'United States', 'United Kingdom', 'Spain', 'Italy', 'France', 'Germany', 'Russia']
+interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'France', 'Germany', 'Russia']
 for country in interactive:
 	try:
 		dead = False
@@ -206,7 +206,7 @@ for country in interactive:
 		dates = [(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))]
 		fig = make_subplots(specs=[[{"secondary_y": True}]])
 		fig.add_trace(go.Scatter(x=dates, y=newpredsave, name="Prediction (new cases)", marker=dict(color='#EB752C')))
-		fig.add_trace(go.Bar(x=dates, y=newsave, name="True data (new cases)", marker=dict(color='rgba(235,117,44,0.7)')))
+		fig.add_trace(go.Bar(x=dates, y=newsave, name="True data (new cases)", marker=dict(color='#EB752C'), opacity=0.7, hoverlabel=dict(bgcolor='#FF351C')))
 		fig.add_trace(go.Scatter(x=dates, y=deadpredsave, name="Prediction (deaths)", marker=dict(color='#2D58BE')), secondary_y=True)
 		fig.add_trace(go.Bar(x=dates, y=deadsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
 		fig.update_layout(hovermode="x",
@@ -229,7 +229,7 @@ for country in interactive:
 		####
 		fig = make_subplots(specs=[[{"secondary_y": True}]])
 		fig.add_trace(go.Scatter(x=dates, y=cumpredsave, name="Prediction (new cases)", marker=dict(color='#EB752C')))
-		fig.add_trace(go.Bar(x=dates, y=cumsave, name="True data (new cases)", marker=dict(color='rgba(235,117,44,0.7)')))
+		fig.add_trace(go.Bar(x=dates, y=cumsave, name="True data (new cases)", marker=dict(color='#EB752C'), opacity=0.7, hoverlabel=dict(bgcolor='#FF351C')))
 		fig.add_trace(go.Scatter(x=dates, y=cumdpredsave, name="Prediction (deaths)", marker=dict(color='#2D58BE')), secondary_y=True)
 		fig.add_trace(go.Bar(x=dates, y=cumdsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
 		fig.update_layout(hovermode="x",
