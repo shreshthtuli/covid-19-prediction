@@ -10,12 +10,12 @@
 
             <a href='https://www.sciencedirect.com/science/article/pii/S254266052030055X/pdfft?md5=147a70a74c8beb9ab6bd3ceed351dd94&pid=1-s2.0-S254266052030055X-main.pdf'>See published paper in the <i>Internet of Things Journal</i> for more details.</a> <br>
 
-            <i>The graphs are updated daily using the <a href='https://ourworldindata.org/coronavirus-source-data'>Our World in Data</a> dataset. Last updated 
+            <i>The graphs are updated daily using the <a href='https://ourworldindata.org/coronavirus-source-data'>Our World in Data</a> dataset. Last updated <b>
 <?php
 $myfile = fopen("plots/lastupdated.txt", "r");
 echo fgets($myfile);
 fclose($myfile);
-?>. </i><br>
+?> IST</b>. </i><br>
          
 
 <iframe width="700" height="500" frameborder="0" scrolling="no" src="plots/World_pred.html"></iframe>

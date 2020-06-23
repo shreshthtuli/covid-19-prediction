@@ -127,7 +127,7 @@ dfPlot = pd.DataFrame()
 dfcPlot = pd.DataFrame()
 training_data = -1
 interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'France', 'Germany', 'Russia']
-for country in ['World']:
+for country in interactive:
 	try:
 		dead = False
 		print("--", country)
