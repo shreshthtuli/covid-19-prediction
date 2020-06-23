@@ -1,9 +1,9 @@
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 
 
 while :
 do
 	wget https://covid.ourworldindata.org/data/owid-covid-data.csv
-	python plots.py
+	python3 plots.py
 	sleep 1d
 done
