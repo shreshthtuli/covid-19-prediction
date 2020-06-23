@@ -8,7 +8,7 @@
 		<b>Ruchi Verma</b> (PBEL, Hyderabad)<br>
             <b>Rakesh Tuli</b> (DIC, UIET, Panjab University)<br>
 
-            <a href='https://www.sciencedirect.com/science/article/pii/S254266052030055X/pdfft?md5=147a70a74c8beb9ab6bd3ceed351dd94&pid=1-s2.0-S254266052030055X-main.pdf'>See published paper in the <i>Internet of Things Journal</i> for more details.</a> <br>
+            <a href='https://www.medrxiv.org/content/10.1101/2020.06.18.20134874v1'>See published paper in the <i>medRxiv</i> for more details.</a> <br>
 
             <i>The graphs are updated daily using the <a href='https://ourworldindata.org/coronavirus-source-data'>Our World in Data</a> dataset. Last updated <b>
 <?php
