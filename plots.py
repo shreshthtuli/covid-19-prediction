@@ -5,10 +5,7 @@ from scipy.optimize import curve_fit
 from scipy import stats
 from sklearn.metrics import mean_squared_error
 import numpy as np
-import torch
-import torch.nn as nn
 from copy import deepcopy
-import torch.nn.functional as F
 from numpy import inf
 from math import exp
 from datetime import timedelta
@@ -206,9 +203,9 @@ for country in interactive:
 		dates = [(start+timedelta(days=i)).strftime("%d %b %Y") for i in list(range(1,xlim))]
 		fig = make_subplots(specs=[[{"secondary_y": True}]])
 		fig.add_trace(go.Scatter(x=dates, y=newpredsave, name="Prediction (new cases)", marker=dict(color='#EB752C')))
-		fig.add_trace(go.Bar(x=dates, y=newsave, name="True data (new cases)", marker=dict(color='#EB752C'), opacity=0.7, hoverlabel=dict(bgcolor='#FF351C')))
+		fig.add_trace(go.Bar(x=dates, y=newsave, name="True data (new cases)", marker=dict(color='#EB752C'), opacity=0.7, width=[1]*len(dates), hoverlabel=dict(bgcolor='#FF351C')))
 		fig.add_trace(go.Scatter(x=dates, y=deadpredsave, name="Prediction (deaths)", marker=dict(color='#2D58BE')), secondary_y=True)
-		fig.add_trace(go.Bar(x=dates, y=deadsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
+		fig.add_trace(go.Bar(x=dates, y=deadsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, width=[1]*len(dates), hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
 		fig.update_layout(hovermode="x",
 			title=country.capitalize(),
 			title_x=0.5,
@@ -229,9 +226,9 @@ for country in interactive:
 		####
 		fig = make_subplots(specs=[[{"secondary_y": True}]])
 		fig.add_trace(go.Scatter(x=dates, y=cumpredsave, name="Prediction (new cases)", marker=dict(color='#EB752C')))
-		fig.add_trace(go.Bar(x=dates, y=cumsave, name="True data (new cases)", marker=dict(color='#EB752C'), opacity=0.7, hoverlabel=dict(bgcolor='#FF351C')))
+		fig.add_trace(go.Bar(x=dates, y=cumsave, name="True data (new cases)", marker=dict(color='#EB752C'), opacity=0.7, width=[1]*len(dates), hoverlabel=dict(bgcolor='#FF351C')))
 		fig.add_trace(go.Scatter(x=dates, y=cumdpredsave, name="Prediction (deaths)", marker=dict(color='#2D58BE')), secondary_y=True)
-		fig.add_trace(go.Bar(x=dates, y=cumdsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
+		fig.add_trace(go.Bar(x=dates, y=cumdsave, name="True data (deaths)", marker=dict(color='#2D58BE'), opacity=0.3, width=[1]*len(dates), hoverlabel=dict(bgcolor='#1A22AB')), secondary_y=True)
 		fig.update_layout(hovermode="x",
 			title=country.capitalize(),
 			title_x=0.5,
