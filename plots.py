@@ -17,6 +17,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from plotly.graph_objects import Layout
+from datetime import datetime, date
 
 warnings.simplefilter("ignore")
 
@@ -126,7 +127,7 @@ dfPlot = pd.DataFrame()
 dfcPlot = pd.DataFrame()
 training_data = -1
 interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'France', 'Germany', 'Russia']
-for country in interactive:
+for country in ['World']:
 	try:
 		dead = False
 		print("--", country)
@@ -252,6 +253,10 @@ for country in interactive:
 		# raise(e)
 		pass
 
-
+f = open("plots/lastupdated.txt", "w")
+now = datetime.now().time()
+today = date.today()
+f.write(now.strftime("%H:%M:%S")+" - "+today.strftime("%d %b %Y"))
+f.close()
 # dfPlot.to_excel('plot.xlsx')
 # dfcPlot.to_excel('cplot.xlsx')
