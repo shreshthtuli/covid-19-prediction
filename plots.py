@@ -20,8 +20,8 @@ from plotly.graph_objects import Layout
 
 warnings.simplefilter("ignore")
 
-plt.style.use(['science'])
-plt.rcParams["text.usetex"] = True
+# plt.style.use(['science'])
+# plt.rcParams["text.usetex"] = True
 
 try:
     os.makedirs('plots')
