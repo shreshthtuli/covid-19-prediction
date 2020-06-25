@@ -8,7 +8,7 @@
 		<b>Ruchi Verma</b> (PBEL, Hyderabad)<br>
             <b>Rakesh Tuli</b> (DIC, UIET, Panjab University)<br>
 
-            See published paper in the <i><a href='https://www.medrxiv.org/content/10.1101/2020.06.18.20134874v1'>medRxiv</a></i> for more details. Source code available at <i><a href='https://github.com/shreshthtuli/covid-19-prediction'>GitHub</a> under BSD-2 license.</i>
+            See published paper in the <i><a href='https://www.medrxiv.org/content/10.1101/2020.06.18.20134874v1'>medRxiv</a></i> for more details. Source code available at <i><a href='https://github.com/shreshthtuli/covid-19-prediction'>GitHub</a></i> under BSD-2 license.</i>
 
             <br>
 
