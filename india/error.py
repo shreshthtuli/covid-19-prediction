@@ -76,7 +76,7 @@ def iterativeCurveFit(func, x, y, start):
 		pred = np.array([func(px, *popt) for px in x])
 		old = outliersweight
 		outliersweight = np.abs(pred - y)
-		outliersweight = 1 - np.tanh(outliersweight)
+		outliersweight = outliersweight - np.tanh(outliersweight)
 		outliersweight = outliersweight / np.max(outliersweight)
 		outliersweight = softmax(1 - outliersweight)
 		if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
@@ -92,7 +92,7 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 			pred = np.array([func(px, *popt) for px in x])
 			old = outliersweight
 			outliersweight = np.abs(pred - y)
-			outliersweight = 1 - np.tanh(outliersweight)
+			outliersweight = outliersweight - np.tanh(outliersweight)
 			outliersweight = outliersweight / np.max(outliersweight)
 			outliersweight = softmax(1 - outliersweight)
 			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
@@ -120,7 +120,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddataNew = []; gooddataDead = []
 ignore = -1
-training_data = -5
+training_data = -10
 for country in ['India']:
 	if country in insufficient:
 		continue
