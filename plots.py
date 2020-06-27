@@ -75,7 +75,7 @@ def iterativeCurveFit(func, x, y, start):
 		pred = np.array([func(px, *popt) for px in x])
 		old = outliersweight
 		outliersweight = np.abs(pred - y)
-		outliersweight = 1 - np.tanh(outliersweight)
+		outliersweight = outliersweight - np.tanh(outliersweight)
 		outliersweight = outliersweight / np.max(outliersweight)
 		outliersweight = softmax(1 - outliersweight)
 		if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
@@ -91,7 +91,7 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 			pred = np.array([func(px, *popt) for px in x])
 			old = outliersweight
 			outliersweight = np.abs(pred - y)
-			outliersweight = 1 - np.tanh(outliersweight)
+			outliersweight = outliersweight - np.tanh(outliersweight)
 			outliersweight = outliersweight / np.max(outliersweight)
 			outliersweight = softmax(1 - outliersweight)
 			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
