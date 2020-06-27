@@ -22,6 +22,7 @@ We use the <i>[Our World in Data](https://github.com/owid/covid-19-data/tree/mas
 [Shreshth Tuli](https://www.github.com/shreshthtuli) (shreshthtuli@gmail.com)
 
 ## Cite this work
+If you use our static model, please cite:
 ```
 @article{tuli2020predicting,
 title = "Predicting the Growth and Trend of COVID-19 Pandemic using Machine Learning and Cloud Computing",
@@ -34,6 +35,17 @@ url = "http://www.sciencedirect.com/science/article/pii/S254266052030055X",
 author = "Shreshth Tuli and Shikhar Tuli and Rakesh Tuli and Sukhpal Singh Gill",
 }
 ```
+If you use our dynamic model, please cite:
+```
+@article{tuli2020modelling,
+  title={Modelling for prediction of the spread and severity of COVID-19 and its association with socioeconomic factors and virus types},
+  author={Tuli, Shreshth and Tuli, Shikhar and Verma, Ruchi and Tuli, Rakesh},
+  journal={medRxiv},
+  year={2020},
+  publisher={Cold Spring Harbor Laboratory Press}
+}
+```
 
 ## References
 * **Shreshth Tuli, Shikhar Tuli, Rakesh Tuli and Sukhpal Singh Gill, [Predicting the Growth and Trend of COVID-19 Pandemic using Machine Learning and Cloud Computing.](https://www.sciencedirect.com/science/article/pii/S254266052030055X?via%3Dihub) Internet of Things, ISSN: 2542-6605, Elsevier Press, Amsterdam, The Netherlands, May 2020.** ([Open access link](https://www.medrxiv.org/content/10.1101/2020.05.06.20091900v1))
+* **Shreshth Tuli, Shikhar Tuli, Ruchi Verma and Rakesh Tuli, [Modelling for prediction of the spread and severity of COVID-19 and its association with socioeconomic factors and virus types.](https://www.medrxiv.org/content/10.1101/2020.06.18.20134874v1) medRxiv, June 2020.** ([Open access link](https://www.medrxiv.org/content/10.1101/2020.06.18.20134874v1))
