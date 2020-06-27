@@ -120,7 +120,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
 insufficient = ['Central African Republic', 'Cambodia', 'Sudan', 'Ecuador', 'Chile', 'Colombia', 'Peru'] 
 finaldata = []; gooddataNew = []; gooddataDead = []
 ignore = -1
-training_data = -10
+training_data = -15
 for country in ['India']:
 	if country in insufficient:
 		continue
@@ -164,7 +164,8 @@ for country in ['India']:
 		print("R2 ", r2)
 		print("97 day", (start + timedelta(days=when97)).strftime("%d %b %y"))
 		print("MAPE", mape)
-		mape_error_new = mean_absolute_percentage_error(data[1:training_data], y[:training_data])
+		mape_error_new = mean_absolute_percentage_error(data[training_data:], y[training_data:])
+		r2_error_new = r2_score(data[training_data:], y[training_data:])
 
 		# Metrics
 		y = [func[whichFunc][0](px, *popt) for px in list(range(xlim))[1:]]
@@ -187,7 +188,8 @@ for country in ['India']:
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		r2Dead = r2_score(data[1:], y)
 		mapeDead = mean_absolute_percentage_error(data[1:], y)
-		mape_error_dead = mean_absolute_percentage_error(data[1:training_data], y[:training_data])
+		mape_error_dead = mean_absolute_percentage_error(data[training_data:], y[training_data:])
+		r2_error_dead = r2_score(data[training_data:], y[training_data:])
 		finalday, finalexp = totalExpected(func[whichFunc][0], popt, data)
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		maxcases2, maxday2 = getMaxCases(pred, data)
@@ -199,7 +201,7 @@ for country in ['India']:
 		plt.savefig('India_ICMR.pdf')
 
 		population = 1379715223
-		values = [country, mape_error_new, mape_error_dead, r2, mape, r2Dead, mapeDead, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
+		values = [country, mape_error_new, mape_error_dead, r2_error_new, r2_error_dead, r2, mape, r2Dead, mapeDead, maxday2-maxday, finalexpold, finalexp, finalexpold/population, finalexp/population, 100*finalexp/finalexpold]
 		finaldata.append(values)
 		if maxday2 - maxday >= -10 and mape <= 46: 
 			gooddataNew.append(finaldata[-1])
@@ -212,11 +214,6 @@ for country in ['India']:
 		pass
 
 params = ['peaks diff', 'total cases', 'total deaths', 'cases/pop', 'deaths/pop', 'mortality']
-df = pd.DataFrame(finaldata,columns=['Country', 'Prediction MAPE (new)', 'Prediction MAPE (dead)', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params)
-dfgood = pd.DataFrame(gooddataNew,columns=['Country', 'Prediction MAPE (new)', 'Prediction MAPE (dead)', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params)
-dfgoodm = pd.DataFrame(gooddataDead,columns=['Country', 'Prediction MAPE (new)', 'Prediction MAPE (dead)', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params)
-
+df = pd.DataFrame(finaldata,columns=['Country', 'Prediction MAPE (new)', 'Prediction MAPE (dead)', 'Prediction R2 (new)', 'Prediction R2 (dead)', 'R2', 'MAPE', 'R2 Deaths', 'MAPE Deaths']+params)
 with pd.ExcelWriter('error.xlsx') as writer:  
     df.to_excel(writer, sheet_name='All errors')
-    dfgood.to_excel(writer, sheet_name='Errors of good models (new)')
-    dfgoodm.to_excel(writer, sheet_name='Errors of good models (deaths)')
