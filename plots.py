@@ -127,8 +127,8 @@ def getcummulative(l):
 
 dead = False
 finaldata = []
-# dfPlot = pd.DataFrame()
-# dfcPlot = pd.DataFrame()
+dfPlot = pd.DataFrame()
+dfcPlot = pd.DataFrame()
 training_data = -1
 interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'France', 'Germany', 'Russia']
 for country in interactive:
