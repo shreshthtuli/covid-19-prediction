@@ -87,7 +87,11 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
 		outliersweight = None
 		for i in range(10):
-			popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, absolute_sigma=True, maxfev=100000)
+			try:
+				popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, absolute_sigma=True, maxfev=100000)
+			except Exception as e: 
+				print('ignore -', ignore, ', exception -', e)
+				break
 			pred = np.array([func(px, *popt) for px in x])
 			old = outliersweight
 			outliersweight = np.abs(pred - y)
@@ -97,7 +101,7 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
 		pred = [func(px, *popt) for px in xIn]
 		res.append((mean_absolute_percentage_error(yIn, pred), popt, pcov, ignore))
-	# for i in res: print(i)
+	# for i in res: print(i[0])
 	val = res[res.index(min(res))]
 	return val[1], val[2]
 
@@ -172,7 +176,7 @@ for country in interactive:
 		datacopy = np.absolute(np.array(deepcopy(data[1:training_data])))
 		poptold = popt
 		finalexpold = finalexp
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [4000, 54, 4, 500])
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [2000, 54, 4, 500])
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		deadpredsave = deepcopy(pred)
