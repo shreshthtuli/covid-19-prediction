@@ -172,7 +172,7 @@ for country in interactive:
 		datacopy = np.absolute(np.array(deepcopy(data[1:training_data])))
 		poptold = popt
 		finalexpold = finalexp
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [2000, 54, 4, 500])
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [4000, 54, 4, 500])
 		y = [func[1][0](px, *popt) for px in x[1:]]
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		deadpredsave = deepcopy(pred)
