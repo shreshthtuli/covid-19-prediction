@@ -83,7 +83,7 @@ def iterativeCurveFit(func, x, y, start):
 
 def seriesIterativeCurveFit(func, xIn, yIn, start):
 	res = []
-	for ignore in range(15, 0, -1):
+	for ignore in range(10, 0, -1):
 		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
 		outliersweight = None
 		for i in range(10):
