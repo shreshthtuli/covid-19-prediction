@@ -44,6 +44,7 @@ def getInfoCountry(df2, isdead):
 	startDate = min(df2.date)
 	totalLength = max(df2.Delta)
 	confirmed = []; new = []
+	df2 = df2.fillna(0)
 	for day in range(totalLength):
 		newc = max(0, int(sum(df2.new_cases[df2.Delta == day] if not isdead else df2.new_deaths[df2.Delta == day])))
 		new.append(newc)
@@ -82,7 +83,7 @@ def iterativeCurveFit(func, x, y, start):
 	return popt, pcov
 
 def seriesIterativeCurveFit(func, xIn, yIn, start):
-	res = []
+	res = []; errors = []
 	for ignore in range(10, 0, -1):
 		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
 		outliersweight = None
@@ -100,10 +101,11 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 			outliersweight = softmax(1 - outliersweight)
 			if i > 1 and sum(abs(old - outliersweight)) < 0.001: break
 		pred = [func(px, *popt) for px in xIn]
-		res.append((mean_absolute_percentage_error(yIn, pred), popt, pcov, ignore))
-	# for i in res: print(i[0])
-	val = res[res.index(min(res))]
-	return val[1], val[2]
+		res.append((popt, pcov, ignore))
+		errors.append(mean_absolute_percentage_error(yIn, pred))
+	print(errors)
+	val = res[errors.index(min(errors))]
+	return val[0], val[1]
 
 def getMaxCases(y, data):
 	m = 0; dday = 0
@@ -117,7 +119,7 @@ def getMaxCases(y, data):
 	return m, dday
 
 def mean_absolute_percentage_error(y_true, y_pred): 
-    return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
+	return np.mean(np.abs((np.array(y_true) - np.array(y_pred)) / (np.array(y_true)+1))) * 100
 
 def getcummulative(l):
 	res = []; s = 0
@@ -138,9 +140,6 @@ for country in interactive:
 		df2 = df[df['location'] == country]
 		res = getInfoCountry(df2, False)
 		data = res[-1]
-		if sum(data) < (2000 if not dead else 100) and not data in ['Brazil', 'Iran', 'Israel', 'Oman']:
-			print('skip', country,)
-			continue
 		days = res[1]
 		start = res[0]
 
