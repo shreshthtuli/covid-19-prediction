@@ -89,7 +89,7 @@ def seriesIterativeCurveFit(func, xIn, yIn, start):
 		outliersweight = None
 		for i in range(10):
 			try:
-				popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, absolute_sigma=True, maxfev=500000)
+				popt, pcov = curve_fit(func, x, y, start, sigma=outliersweight, absolute_sigma=True, maxfev=1000000)
 			except Exception as e: 
 				print('ignore -', ignore, ', exception -', e)
 				break
