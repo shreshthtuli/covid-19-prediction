@@ -2,13 +2,15 @@
 <html>
     <head><meta charset="utf-8" /></head>
     <body>
-        <center><h1>Prediction of COVID-2019 rise and fall with an improved prediction model</h1>
-            <b>Shreshth Tuli</b> (Department of CSE, IIT Delhi)<br>
-            <b>Shikhar Tuli</b> (Department of EE, IIT Delhi)<br>
-		<b>Ruchi Verma</b> (PBEL, Hyderabad)<br>
-            <b>Rakesh Tuli</b> (DIC, UIET, Panjab University)<br>
+        <center><h1>Prediction of COVID-2019 rise and fall with an improved prediction model</h1><br>
+            <h2>(Multi-peak Weibull Model)</h2>
+            <b>Shreshth Tuli</b> (Department of Computing, Imperial College London)<br>
 
             See published paper in the <i><a href='https://www.medrxiv.org/content/10.1101/2020.06.18.20134874v1'>medRxiv</a></i> for more details. Source code available on <i><a href='https://github.com/shreshthtuli/covid-19-prediction'>GitHub</a></i> under BSD-2 license.</i>
+
+            <br>
+
+            For more details please contact the developer at <a href='mailto:shreshthtuli@gmail.com'>shreshthtuli@gmail.com</a>.
 
             <br>
 
@@ -51,11 +53,6 @@ fclose($myfile);
 
 <iframe width="700" height="500" frameborder="0" scrolling="no" src="plots/France_pred.html"></iframe>
 <iframe width="700" height="500" frameborder="0" scrolling="no" src="plots/France_total.html"></iframe>
-
-<hr>
-
-<iframe width="700" height="500" frameborder="0" scrolling="no" src="plots/Germany_pred.html"></iframe>
-<iframe width="700" height="500" frameborder="0" scrolling="no" src="plots/Germany_total.html"></iframe>
 
 <hr>
 

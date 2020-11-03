@@ -39,6 +39,12 @@ countries = list(pd.unique(df['location']))
 def weib(x, k, a, b, g):
 	return k * g * b * (a ** b) * np.exp(-1 * g * ((a / x)  ** b)) / (x ** (b + 1))
 
+def weib2(x, k, a, b, g, k2, a2):
+	return weib(x, k, a, b, g) + weib(x, k2, a2, b, g)
+
+def weib3(x, k, a, b, g, k2, a2, k3, a3):
+	return weib(x, k, a, b, g) + weib(x, k2, a2, b, g) + weib(x, k3, a3, b, g)
+
 def getInfoCountry(df2, isdead):
 	df2['Delta'] = (df2.date - min(df2.date)).dt.days
 	startDate = min(df2.date)
@@ -84,7 +90,7 @@ def iterativeCurveFit(func, x, y, start):
 
 def seriesIterativeCurveFit(func, xIn, yIn, start):
 	res = []; errors = []
-	for ignore in range(10, 0, -1):
+	for ignore in range(5, 0, -1):
 		x = xIn[:-1*ignore]; y = yIn[:-1*ignore]
 		outliersweight = None
 		for i in range(10):
@@ -132,7 +138,8 @@ finaldata = []
 dfPlot = pd.DataFrame()
 dfcPlot = pd.DataFrame()
 training_data = -1
-interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'France', 'Germany', 'Russia']
+interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'France', 'Russia']
+num_peaks = dict(zip(interactive, [1, 3, 3, 2, 1, 2, 2, 2]))
 for country in interactive:
 	try:
 		dead = False
@@ -143,9 +150,11 @@ for country in interactive:
 		days = res[1]
 		start = res[0]
 
-		func = [(weib, [0, 20, 100]), (weib, [60000, 14, 4, 500]), (weib, [7000, 0.5, 0.001, 100])]
+		func = [(weib, [60000, 14, 4, 500], [2000, 54, 4, 500]), 
+				(weib2, [60000, 14, 4, 500, 60000, 14], [2000, 54, 4, 500, 2000, 54]), 
+				(weib3, [60000, 14, 4, 500, 60000, 14, 60000, 14], [2000, 54, 4, 500, 2000, 54, 2000, 54])]
 
-		whichFunc = 1
+		whichFunc = num_peaks[country] - 1
 		times = 2; skip = 30
 		datacopy = deepcopy(data[1:training_data]); x = list(range(len(data)))
 		if country == 'China': datacopy[datacopy == 15141] = 4000
@@ -175,8 +184,8 @@ for country in interactive:
 		datacopy = np.absolute(np.array(deepcopy(data[1:training_data])))
 		poptold = popt
 		finalexpold = finalexp
-		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, [2000, 54, 4, 500])
-		y = [func[1][0](px, *popt) for px in x[1:]]
+		popt, pcov = seriesIterativeCurveFit(func[whichFunc][0], x[1:training_data], datacopy, func[whichFunc][2])
+		y = [func[whichFunc][0](px, *popt) for px in x[1:]]
 		pred = [func[whichFunc][0](px, *popt) for px in list(range(xlim2))[1:]]
 		deadpredsave = deepcopy(pred)
 
@@ -253,7 +262,7 @@ for country in interactive:
 		fig.data = []
 	except Exception as e:
 		print(str(e))
-		# raise(e)
+		raise(e)
 		pass
 
 f = open("plots/lastupdated.txt", "w")
@@ -261,5 +270,5 @@ now = datetime.now().time()
 today = date.today()
 f.write(now.strftime("%H:%M:%S")+" - "+today.strftime("%d %b %Y"))
 f.close()
-# dfPlot.to_excel('plot.xlsx')
-# dfcPlot.to_excel('cplot.xlsx')
+dfPlot.to_excel('plot.xlsx')
+dfcPlot.to_excel('cplot.xlsx')
