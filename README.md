@@ -45,17 +45,13 @@ The model uses multiple peak weibull model where each peak is modelled using a s
 
 Without multi-peak distribution (for UK):
 <div>
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_old.PNG" width="400">
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_old.PNG" width="400">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_old.PNG" width="500">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_old.PNG" width="500">
 </div>
 With multi-peak distribution (for UK):
-<div class="row">
-  <div class="column">
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_new.PNG" width="400">
-  </div>
-  <div class="column">
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_new.PNG" width="400">
-  </div>
+<div>
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_new.PNG" width="500">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_new.PNG" width="500">
 </div>
 
 ## Developer
