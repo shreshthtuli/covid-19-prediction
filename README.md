@@ -5,7 +5,7 @@ This study applies an improved mathematical model to analyse and predict the gro
 2. Dynamic LSTM model: https://collaboration.coraltele.com/covid2/.
 3. Multi-peak dynamic model*: https://shreshthtuli.github.io/covid.html.
 
-**\* This model is being used by the NHS UK**.
+**\* This model is also being used by the NHS UK.**
 
 ## Quick installation of real-time prediction webapp
 
