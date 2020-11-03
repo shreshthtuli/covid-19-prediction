@@ -1,6 +1,9 @@
 # Predicting the Growth and Trend of COVID-19 Pandemic
 
-This study applies an improved mathematical model to analyse and predict the growth of the epidemic. An ML-based improved model has been applied to predict the potential threat of COVID-19 in countries worldwide. We show that using iterative weighting for fitting Generalized Inverse Weibull distribution, a better fit can be obtained to develop a prediction framework. This has been deployed on a cloud computing platform for more accurate and real-time prediction of the growth behavior of the epidemic. Interactive prediction graphs can be seen at: https://collaboration.coraltele.com/covid/.
+This study applies an improved mathematical model to analyse and predict the growth of the epidemic. An ML-based improved model has been applied to predict the potential threat of COVID-19 in countries worldwide. We show that using iterative weighting for fitting Generalized Inverse Weibull distribution, a better fit can be obtained to develop a prediction framework. This has been deployed on a cloud computing platform for more accurate and real-time prediction of the growth behavior of the epidemic. Interactive prediction graphs can be seen at the following links:
+1. Static model: https://collaboration.coraltele.com/covid/.
+2. Dynamic LSTM model: https://collaboration.coraltele.com/covid2/.
+3. Multi-peak dynamic model: https://collaboration.coraltele.com/covid3/.
 
 ## Quick installation of real-time prediction webapp
 
@@ -16,6 +19,48 @@ To access your server go to $HOSTNAME/covid/ from your browser. The webapp is ho
 ## Dataset
 
 We use the <i>[Our World in Data](https://github.com/owid/covid-19-data/tree/master/public/data/)</i> dataset for predicting number of new cases and deaths in various countries.
+
+## Model contributions
+
+### Weibull Distribution
+The model uses weibull distribution with the following function:
+<div align="center">
+<img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/weibull.PNG" width="700" align="middle">
+</div>
+
+### Robust Curve Fitting
+The model uses robust curve fitting as described in \[1\]. This is to give low weightage to outliers for curve fitting. The iterative loop of robust curve fitting is shown below.
+<div align="center">
+<img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/Robust_Fitting.png" width="700" align="middle">
+</div>
+
+### Dynamic Parameter Updates
+The model uses LSTM model to calculate the coefficients of the weibull distribution as described in \[2\]. This is to adapt to the data and give higher weightage to recent data.
+<div align="center">
+<img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/drawing.png" width="700" align="middle">
+</div>
+
+### Multi-Peak Weibull distribution
+The model uses multiple peak weibull model where each peak is modelled using a separate weibull distribution. This is summation of upto four weibull functions as described before but with same beta and gamma values to share the trend of the virus in a country.
+
+Without multi-peak distribution (for UK):
+<div class="row" align="center">
+  <div class="column">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_old.PNG" style="width:350">
+  </div>
+  <div class="column">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_old.PNG" style="width:350">
+  </div>
+</div>
+With multi-peak distribution (for UK):
+<div class="row" align="center">
+  <div class="column">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_new.PNG" style="width:350">
+  </div>
+  <div class="column">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_new.PNG" style="width:350">
+  </div>
+</div>
 
 ## Developer
 
