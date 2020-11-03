@@ -41,8 +41,7 @@ The model uses LSTM model to calculate the coefficients of the weibull distribut
 </div>
 
 ### Multi-Peak Weibull distribution
-The model uses multiple peak weibull model where each peak is modelled using a separate weibull distribution. This is summation of upto four weibull functions as described before but with same <img src="https://latex.codecogs.com/svg.latex?\Large&space;\beta" title="\Large x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
- and gamma values to share the trend of the virus in a country.
+The model uses multiple peak weibull model where each peak is modelled using a separate weibull distribution. This is summation of upto four weibull functions as described before but with same <img src="https://latex.codecogs.com/svg.latex?\beta"/> and <img src="https://latex.codecogs.com/svg.latex?\gamma"/> values to share the trend of the virus in a country.
 
 Without multi-peak distribution (for UK):
 <div>
