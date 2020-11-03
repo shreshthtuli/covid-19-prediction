@@ -25,7 +25,7 @@ We use the <i>[Our World in Data](https://github.com/owid/covid-19-data/tree/mas
 ### Weibull Distribution
 The model uses weibull distribution with the following function:
 <div align="center">
-<img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/weibull.PNG" width="700" align="middle">
+<img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/weibull.PNG" width="300" align="middle">
 </div>
 
 ### Robust Curve Fitting
@@ -46,19 +46,19 @@ The model uses multiple peak weibull model where each peak is modelled using a s
 Without multi-peak distribution (for UK):
 <div class="row" align="center">
   <div class="column">
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_old.PNG" style="width:350">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_old.PNG" style="width:250">
   </div>
   <div class="column">
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_old.PNG" style="width:350">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_old.PNG" style="width:250">
   </div>
 </div>
 With multi-peak distribution (for UK):
 <div class="row" align="center">
   <div class="column">
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_new.PNG" style="width:350">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_new.PNG" style="width:250">
   </div>
   <div class="column">
-    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_new.PNG" style="width:350">
+    <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_new.PNG" style="width:250">
   </div>
 </div>
 
