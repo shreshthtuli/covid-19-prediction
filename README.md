@@ -44,13 +44,9 @@ The model uses LSTM model to calculate the coefficients of the weibull distribut
 The model uses multiple peak weibull model where each peak is modelled using a separate weibull distribution. This is summation of upto four weibull functions as described before but with same beta and gamma values to share the trend of the virus in a country.
 
 Without multi-peak distribution (for UK):
-<div class="row">
-  <div class="column">
+<div>
     <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_daily_old.PNG" width="400">
-  </div>
-  <div class="column">
     <img src="https://github.com/shreshthtuli/covid-19-prediction/blob/master/figures/readme/uk_total_old.PNG" width="400">
-  </div>
 </div>
 With multi-peak distribution (for UK):
 <div class="row">
