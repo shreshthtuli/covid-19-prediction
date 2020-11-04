@@ -79,9 +79,12 @@ If you use our dynamic model, please cite:
 @article{tuli2020modelling,
   title={Modelling for prediction of the spread and severity of COVID-19 and its association with socioeconomic factors and virus types},
   author={Tuli, Shreshth and Tuli, Shikhar and Verma, Ruchi and Tuli, Rakesh},
-  journal={medRxiv},
+  journal={Biomedical Research and Clinical Reviews},
   year={2020},
-  publisher={Cold Spring Harbor Laboratory Press}
+  volume={1},
+  issue={3},
+  doi={10.31579/2692-9406/014}
+  publisher={Auctores}
 }
 ```
 
