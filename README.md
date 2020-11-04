@@ -16,7 +16,7 @@ $ mv covid-19-prediction covid
 $ chmod +x run.sh
 $ ./run.sh
 ```
-To access your server go to $HOSTNAME/covid/ from your browser. The webapp is hosted on https://collaboration.coraltele.com/covid2/ where graphs get updated daily based on new data.
+To access your server go to $HOSTNAME/covid/ from your browser. The webapp is hosted on https://shreshthtuli.github.io/covid.html where graphs get updated daily based on new data.
 
 ## Dataset
 
