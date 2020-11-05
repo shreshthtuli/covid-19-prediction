@@ -3,7 +3,7 @@
 This study applies an improved mathematical model to analyse and predict the growth of the epidemic. An ML-based improved model has been applied to predict the potential threat of COVID-19 in countries worldwide. We show that using iterative weighting for fitting Generalized Inverse Weibull distribution, a better fit can be obtained to develop a prediction framework. This has been deployed on a cloud computing platform for more accurate and real-time prediction of the growth behavior of the epidemic. Interactive prediction graphs can be seen at the following links:
 1. Static model: https://collaboration.coraltele.com/covid/.
 2. Dynamic LSTM model: https://collaboration.coraltele.com/covid2/.
-3. Multi-peak dynamic model*: https://shreshthtuli.github.io/covid.html.
+3. Multi-peak dynamic model*: https://shreshthtuli.github.io/projects/covid/.
 
 **\* This model is also being used by the National Health Service (NHS) of the UK.**
 
@@ -16,7 +16,7 @@ $ mv covid-19-prediction covid
 $ chmod +x run.sh
 $ ./run.sh
 ```
-To access your server go to $HOSTNAME/covid/ from your browser. The webapp is hosted on https://shreshthtuli.github.io/covid.html where graphs get updated daily based on new data.
+To access your server go to $HOSTNAME/covid/ from your browser. The webapp is hosted on https://shreshthtuli.github.io/projects/covid/ where graphs get updated daily based on new data.
 
 ## Dataset
 
