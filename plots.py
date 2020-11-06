@@ -45,6 +45,9 @@ def weib2(x, k, a, b, g, k2, a2):
 def weib3(x, k, a, b, g, k2, a2, k3, a3):
 	return weib(x, k, a, b, g) + weib(x, k2, a2, b, g) + weib(x, k3, a3, b, g)
 
+def weib4(x, k, a, b, g, k2, a2, k3, a3, k4, a4):
+	return weib(x, k, a, b, g) + weib(x, k2, a2, b, g) + weib(x, k3, a3, b, g) + weib(x, k4, a4, b, g)
+
 def getInfoCountry(df2, isdead):
 	df2['Delta'] = (df2.date - min(df2.date)).dt.days
 	startDate = min(df2.date)
@@ -138,7 +141,7 @@ finaldata = []
 dfPlot = pd.DataFrame()
 dfcPlot = pd.DataFrame()
 training_data = -1
-interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'France', 'Russia']
+interactive = ['India', 'World', 'United States', 'United Kingdom', 'Brazil', 'Italy', 'Argentina', 'Russia']
 num_peaks = dict(zip(interactive, [1, 3, 3, 2, 1, 2, 2, 2]))
 for country in interactive:
 	try:
@@ -152,7 +155,8 @@ for country in interactive:
 
 		func = [(weib, [60000, 14, 4, 500], [2000, 54, 4, 500]), 
 				(weib2, [60000, 14, 4, 500, 60000, 14], [2000, 54, 4, 500, 2000, 54]), 
-				(weib3, [60000, 14, 4, 500, 60000, 14, 60000, 14], [2000, 54, 4, 500, 2000, 54, 2000, 54])]
+				(weib3, [60000, 14, 4, 500, 60000, 14, 60000, 14], [2000, 54, 4, 500, 2000, 54, 2000, 54]),
+				(weib4, [60000, 14, 4, 500, 60000, 14, 60000, 14, 60000, 14], [2000, 54, 4, 500, 4000, 54, 2000, 54, 2000, 54])]
 
 		whichFunc = num_peaks[country] - 1
 		times = 2; skip = 30
