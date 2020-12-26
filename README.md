@@ -13,6 +13,7 @@ To install and run the dynamic real-time prediction webapp on your server run th
 ```
 $ git clone https://github.com/shreshthtuli/covid-19-prediction.git
 $ mv covid-19-prediction covid
+$ cd covid
 $ chmod +x run.sh
 $ ./run.sh
 ```
